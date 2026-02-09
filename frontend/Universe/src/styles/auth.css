@@ -1,0 +1,322 @@
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary-pink: #FF3366;
+  --soft-pink: #FFF0F5;
+  --text-dark: #1A1A1A;
+  --text-gray: #666666;
+  --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+body {
+  font-family: 'Urbanist', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.auth-wrapper {
+  display: flex;
+  min-height: 100vh;
+  width: 100vw;
+  background: #FFF5F7;
+  /* Very light pink background */
+  position: relative;
+  overflow-x: hidden;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Creating the split layout */
+.auth-container {
+  display: flex;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem;
+}
+
+/* Left Side - Hero Content */
+.auth-hero {
+  flex: 1;
+  padding: 4rem;
+  max-width: 600px;
+}
+
+.hero-tag {
+  display: inline-block;
+  background: white;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.hero-tag span {
+  color: var(--primary-pink);
+  margin-right: 0.5rem;
+}
+
+.auth-hero h1 {
+  font-size: 4rem;
+  line-height: 1.1;
+  color: var(--text-dark);
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.auth-hero h1 span {
+  background: linear-gradient(90deg, #FF3366 0%, #FF8FA3 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.auth-hero p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-gray);
+  margin-bottom: 3rem;
+  max-width: 480px;
+}
+
+.social-proof {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatars {
+  display: flex;
+}
+
+.avatars img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid #FFF5F7;
+  margin-left: -10px;
+}
+
+.avatars img:first-child {
+  margin-left: 0;
+}
+
+.social-proof span {
+  color: var(--text-gray);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+/* Right Side - Login Card */
+.auth-form-side {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-card {
+  background: white;
+  padding: 3rem;
+  border-radius: 30px;
+  box-shadow: var(--card-shadow);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+  position: relative;
+}
+
+.lock-icon-container {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--primary-pink);
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  box-shadow: 0 10px 20px rgba(255, 51, 102, 0.3);
+}
+
+.auth-card h2 {
+  font-size: 1.8rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-dark);
+}
+
+.auth-card .sub-text {
+  color: var(--text-gray);
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+  text-align: left;
+}
+
+.form-group label {
+  display: none;
+  /* Hiding labels for cleaner look like design */
+}
+
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  /* Space for icon */
+  border: 1px solid #EEEEEE;
+  background: #FAFAFA;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  font-family: 'Urbanist', sans-serif;
+  box-sizing: border-box;
+}
+
+.input-with-icon input:focus {
+  outline: none;
+  border-color: var(--primary-pink);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(255, 51, 102, 0.1);
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+}
+
+.forgot-password {
+  text-align: right;
+  margin-top: 0.5rem;
+}
+
+.forgot-password a {
+  color: var(--primary-pink);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 1rem;
+  background: var(--primary-pink);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary:hover {
+  background: #E62E5C;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(255, 51, 102, 0.2);
+}
+
+.divider {
+  margin: 2rem 0;
+  display: flex;
+  align-items: center;
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #EEE;
+}
+
+.divider span {
+  padding: 0 1rem;
+}
+
+.social-login {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-social {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem;
+  border: 1px solid #EEE;
+  background: white;
+  border-radius: 12px;
+  font-weight: 600;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-social:hover {
+  background: #FAFAFA;
+  border-color: #DDD;
+}
+
+.auth-footer {
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: var(--text-gray);
+}
+
+.auth-footer a {
+  color: var(--primary-pink);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+/* Floating Elements for Decor */
+.floating-heart {
+  position: absolute;
+  color: #FFC0CB;
+  opacity: 0.6;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
