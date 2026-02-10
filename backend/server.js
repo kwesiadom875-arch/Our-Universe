@@ -39,7 +39,7 @@ app.get('/api/data', (req, res) => {
 });
 
 // --- Serve React Frontend in Production ---
-const frontendBuildPath = path.join(__dirname, '..', 'frontend', 'Universe', 'dist');
+const frontendBuildPath = path.join(__dirname, '..', 'frontend', 'Universe',);
 const indexHtmlPath = path.join(frontendBuildPath, 'index.html');
 
 if (fs.existsSync(frontendBuildPath)) {
