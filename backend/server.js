@@ -3,6 +3,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
+const fs = require('fs');
 
 dotenv.config();
 
@@ -39,12 +40,19 @@ app.get('/api/data', (req, res) => {
 
 // --- Serve React Frontend in Production ---
 const frontendBuildPath = path.join(__dirname, '..', 'frontend', 'Universe', 'dist');
-app.use(express.static(frontendBuildPath));
+const indexHtmlPath = path.join(frontendBuildPath, 'index.html');
 
-// Catch-all: serve index.html for any non-API route (React Router support)
-app.get('/{*splat}', (req, res) => {
-    res.sendFile(path.join(frontendBuildPath, 'index.html'));
-});
+if (fs.existsSync(frontendBuildPath)) {
+    app.use(express.static(frontendBuildPath));
+
+    // Catch-all: serve index.html for any non-API route (React Router support)
+    app.get('/{*splat}', (req, res) => {
+        res.sendFile(indexHtmlPath);
+    });
+    console.log('Serving frontend from:', frontendBuildPath);
+} else {
+    console.warn('Frontend build not found at:', frontendBuildPath);
+}
 
 // Start the Server
 app.listen(PORT, '0.0.0.0', () => {
