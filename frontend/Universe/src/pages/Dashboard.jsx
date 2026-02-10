@@ -1,66 +1,77 @@
+
+
 import { useContext } from 'react';
 import AuthContext from '../context/AuthContext';
+import Layout from '../components/Layout';
+import { Link } from 'react-router-dom';
+import { Calendar, Film, BookOpen, Clock, Heart } from 'lucide-react';
+import '../styles/dashboard.css';
 
 const Dashboard = () => {
-    const { user, logout } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
+
+    // Get time of day for greeting
+    const hour = new Date().getHours();
+    let greeting = 'Good Morning';
+    if (hour >= 12) greeting = 'Good Afternoon';
+    if (hour >= 18) greeting = 'Good Evening';
 
     return (
-        <div style={{ padding: '2rem', textAlign: 'center' }}>
-            <h1>Welcome {user && user.username}! 🌟</h1>
-            <p>This is your shared universe.</p>
+        <Layout>
+            <div className="dashboard-container">
+                {/* Dynamic Background Removed - Now in Layout */}
 
-            <div style={{ margin: '2rem 0', display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <a href="/timetable" style={{
-                    background: '#FF3366',
-                    color: 'white',
-                    padding: '1rem 2rem',
-                    borderRadius: '50px',
-                    textDecoration: 'none',
-                    fontWeight: 'bold',
-                    display: 'inline-block'
-                }}>
-                    View School Timetable 📅
-                </a>
-                <a href="/calendar" style={{
-                    background: '#a855f7',
-                    color: 'white',
-                    padding: '1rem 2rem',
-                    borderRadius: '50px',
-                    textDecoration: 'none',
-                    fontWeight: 'bold',
-                    display: 'inline-block'
-                }}>
-                    View Calendar 🗓️
-                </a>
+                <div className="dashboard-header">
+                    <span className="greeting-sup">{greeting}, {user?.username}</span>
+                    <h1 className="greeting-main">Our Universe <Heart className="inline-heart" size={48} fill="#ff3366" color="#ff3366" /></h1>
+                    <p className="greeting-sub">
+                        Your shared space for moments. What would you like to explore today?
+                    </p>
+                </div>
 
-                <a href="/movies" style={{
-                    background: '#8B5CF6',
-                    color: 'white',
-                    padding: '1rem 2rem',
-                    borderRadius: '50px',
-                    textDecoration: 'none',
-                    fontWeight: 'bold',
-                    display: 'inline-block'
-                }}>
-                    Movie Matcher 🎬
-                </a>
+                <div className="bento-grid">
+                    <Link to="/timetable" className="bento-card card-timetable">
+                        <div className="card-icon-wrapper">
+                            <Clock size={32} color="white" />
+                        </div>
+                        <div className="card-content">
+                            <h3 className="bento-title">Timetable</h3>
+                            <p className="bento-desc">Stay on track with your shared classes and schedules.</p>
+                        </div>
+                    </Link>
+
+                    <Link to="/calendar" className="bento-card card-calendar">
+                        <div className="card-icon-wrapper">
+                            <Calendar size={32} color="white" />
+                        </div>
+                        <div className="card-content">
+                            <h3 className="bento-title">Shared Calendar</h3>
+                            <p className="bento-desc">Plan dates, track anniversaries, and countdown to special moments together.</p>
+                        </div>
+                    </Link>
+
+                    <Link to="/movies" className="bento-card card-movies">
+                        <div className="card-icon-wrapper">
+                            <Film size={32} color="white" />
+                        </div>
+                        <div className="card-content">
+                            <h3 className="bento-title">Movie Matcher</h3>
+                            <p className="bento-desc">Swipe, match, and decide on tonight's movie in seconds.</p>
+                        </div>
+                    </Link>
+
+                    <Link to="/library" className="bento-card card-library">
+                        <div className="card-icon-wrapper">
+                            <BookOpen size={32} color="white" />
+                        </div>
+                        <div className="card-content">
+                            <h3 className="bento-title">The Library</h3>
+                            <p className="bento-desc">Catalogue your books, track reading progress, and share quotes.</p>
+                        </div>
+                    </Link>
+                </div>
             </div>
-
-            <button
-                onClick={logout}
-                style={{
-                    padding: '0.5rem 1rem',
-                    marginTop: '1rem',
-                    background: '#ff4757',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '5px',
-                    cursor: 'pointer'
-                }}
-            >
-                Logout
-            </button>
-        </div>
+        </Layout>
     );
 };
 

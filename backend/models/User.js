@@ -13,15 +13,34 @@ const UserSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: function () {
+            return !this.googleId;
+        }
+    },
+    profilePicture: {
+        type: String,
+        default: null
+    },
+    googleId: {
+        type: String,
+        default: null
     },
     partnerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         default: null
     },
+    inviteCode: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    inviteCodeExpiry: {
+        type: Date,
+        default: null
+    },
     theme: {
-        primaryColor: { type: String, default: '#ff8FA3' }, // Default pink/cute
+        primaryColor: { type: String, default: '#ff8FA3' },
         accentColor: { type: String, default: '#ffccd5' },
         font: { type: String, default: 'Inter' },
         headerBackground: { type: String, default: 'default-header.jpg' }

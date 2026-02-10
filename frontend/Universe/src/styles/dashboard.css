@@ -1,0 +1,334 @@
+/* Font imported in index.css */
+
+:root {
+    /* Light Theme Variables */
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.8);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    --text-primary: #1e293b;
+    /* Dark Slate */
+    --text-secondary: #64748b;
+    /* Medium Slate */
+    --accent-color: #ff3366;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Playfair Display', serif;
+    background: #f8fafc;
+    /* Very light slate */
+    color: var(--text-primary);
+    overflow-x: hidden;
+}
+
+.dashboard-container {
+    min-height: 100vh;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Dynamic Background - Adjusted for Light Mode */
+.background-blobs {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    background: linear-gradient(135deg, #fff1f2 0%, #eff6ff 100%);
+    /* Soft pink to blue gradient base */
+}
+
+.blob {
+    position: absolute;
+    filter: blur(80px);
+    opacity: 0.4;
+    /* Slightly less opaque for subtle effect */
+    animation: moveBlob 20s infinite alternate;
+}
+
+.blob-1 {
+    top: -10%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background: #e9d5ff;
+    /* Purple tint */
+    border-radius: 40% 60% 70% 30%;
+}
+
+.blob-2 {
+    bottom: -10%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: #fecdd3;
+    /* Rose tint */
+    border-radius: 60% 40% 30% 70%;
+    animation-delay: -5s;
+}
+
+.blob-3 {
+    top: 40%;
+    left: 40%;
+    width: 400px;
+    height: 400px;
+    background: #bae6fd;
+    /* Sky tint */
+    border-radius: 30% 70% 70% 30%;
+    animation-delay: -10s;
+}
+
+@keyframes moveBlob {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(100px, 50px) rotate(20deg);
+    }
+}
+
+/* Header */
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    z-index: 10;
+}
+
+.greeting-sup {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+    display: block;
+    font-weight: 600;
+}
+
+.greeting-main {
+    font-size: 4rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(to right, #1e293b, #475569);
+    /* Dark gradient text */
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.inline-heart {
+    vertical-align: middle;
+    filter: drop-shadow(0 4px 6px rgba(255, 51, 102, 0.3));
+}
+
+.greeting-sub {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-top: 1rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+/* Bento Grid */
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    z-index: 10;
+}
+
+.bento-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 2.5rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    min-height: 250px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.bento-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.bento-card:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.bento-card:hover::before {
+    opacity: 1;
+}
+
+.card-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: auto;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.bento-card:hover .card-icon-wrapper {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.card-content {
+    margin-top: 2rem;
+    z-index: 1;
+}
+
+.bento-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.bento-desc {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* Specific Card Styles - Icon Backgrounds */
+.card-timetable .card-icon-wrapper {
+    background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+}
+
+.card-calendar .card-icon-wrapper {
+    background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+}
+
+.card-movies .card-icon-wrapper {
+    background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
+}
+
+.card-library .card-icon-wrapper {
+    background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+}
+
+/* Layout adjustments */
+.card-timetable {
+    grid-column: span 1;
+}
+
+.card-calendar {
+    grid-column: span 1;
+}
+
+.card-movies {
+    grid-column: span 1;
+}
+
+.card-library {
+    grid-column: span 1;
+}
+
+@media (min-width: 900px) {
+
+    /* Make the calendar or main item larger */
+    .card-calendar {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2rem;
+    }
+
+    .greeting-sup {
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+    }
+
+    .greeting-main {
+        font-size: 2.5rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .greeting-sub {
+        font-size: 1rem;
+    }
+
+    .bento-grid {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+    }
+
+    .card-calendar {
+        grid-column: span 1;
+    }
+
+    .bento-card {
+        padding: 1.8rem;
+        min-height: 200px;
+        border-radius: 18px;
+    }
+
+    .card-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+    }
+
+    .bento-title {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .greeting-main {
+        font-size: 2rem;
+    }
+
+    .bento-card {
+        padding: 1.5rem;
+        min-height: 170px;
+    }
+}

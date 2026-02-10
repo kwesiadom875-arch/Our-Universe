@@ -1,0 +1,172 @@
+/* Navbar Wrapper - Centers the pill */
+.navbar-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-top: 1.5rem;
+    padding-bottom: 0.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    /* Ensure click-through on sides if needed, but sticky usually blocks */
+    pointer-events: none;
+}
+
+/* The actual pill */
+.navbar-pill {
+    background: white;
+    width: 95%;
+    max-width: 1400px;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    /* Soft pinkish shadow possible */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: auto;
+    /* Re-enable clicks */
+}
+
+/* Logo */
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    color: var(--text-dark);
+    font-weight: 700;
+}
+
+.logo-heart {
+    color: var(--primary-pink);
+    font-size: 1.4rem;
+}
+
+.logo-highlight {
+    color: var(--primary-pink);
+}
+
+/* Links */
+.navbar-links {
+    display: flex;
+    gap: 2.5rem;
+    align-items: center;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--text-gray);
+    /* Gray by default */
+    font-weight: 600;
+    font-size: 0.95rem;
+    position: relative;
+    transition: color 0.3s ease;
+    padding: 0.5rem 0;
+}
+
+.nav-link:hover {
+    color: var(--primary-pink);
+}
+
+.nav-link.active {
+    color: var(--primary-pink);
+}
+
+/* Underline pill for active state */
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background: var(--primary-pink);
+    border-radius: 10px;
+}
+
+.star-icon {
+    font-size: 0.8rem;
+    vertical-align: super;
+}
+
+/* User Section */
+.navbar-user-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.2;
+}
+
+.welcome-label {
+    font-size: 0.65rem;
+    color: #999;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.username {
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    font-weight: 700;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    overflow: hidden;
+    border: 2px solid #FFF5F7;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.btn-logout-pill {
+    margin-left: 1rem;
+    padding: 0.6rem 1.5rem;
+    border: 1px solid #ffdde5;
+    /* Very light pink border */
+    background: white;
+    color: var(--primary-pink);
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.btn-logout-pill:hover {
+    background: var(--primary-pink);
+    color: white;
+    border-color: var(--primary-pink);
+}
+
+@media (max-width: 1024px) {
+    .navbar-links {
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .navbar-links,
+    .user-info {
+        display: none;
+    }
+
+    /* Mobile styles would need a hamburger menu */
+}

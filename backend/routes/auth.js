@@ -2,29 +2,62 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
 const auth = require('../middleware/auth');
 const User = require('../models/User');
 
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// Generate a unique 8-character invite code
+const generateInviteCode = () => {
+    return crypto.randomBytes(4).toString('hex').toUpperCase();
+};
+
+// Helper: create JWT token
+const createToken = (userId) => {
+    return new Promise((resolve, reject) => {
+        const payload = { user: { id: userId } };
+        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 360000 }, (err, token) => {
+            if (err) reject(err);
+            resolve(token);
+        });
+    });
+};
+
 // @route   POST api/auth/register
-// @desc    Register user
-// @access  Public
-// @route   POST api/auth/register
-// @desc    Register user
+// @desc    Register user (Create Universe - Flow 1)
 // @access  Public
 router.post('/register', async (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, email, password, profilePicture } = req.body;
 
     try {
         let user = await User.findOne({ email });
-
         if (user) {
             return res.status(400).json({ msg: 'User already exists' });
+        }
+
+        // Check if username is taken
+        let existingUsername = await User.findOne({ username });
+        if (existingUsername) {
+            return res.status(400).json({ msg: 'Username already taken' });
+        }
+
+        // Generate unique invite code
+        let inviteCode = generateInviteCode();
+        let codeExists = await User.findOne({ inviteCode });
+        while (codeExists) {
+            inviteCode = generateInviteCode();
+            codeExists = await User.findOne({ inviteCode });
         }
 
         user = new User({
             username,
             email,
-            password
+            password,
+            profilePicture: profilePicture || null,
+            inviteCode,
+            inviteCodeExpiry: new Date(Date.now() + 48 * 60 * 60 * 1000) // 48 hours
         });
 
         const salt = await bcrypt.genSalt(10);
@@ -32,24 +65,179 @@ router.post('/register', async (req, res) => {
 
         await user.save();
 
-        const payload = {
-            user: {
-                id: user.id
-            }
-        };
-
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET,
-            { expiresIn: 360000 },
-            (err, token) => {
-                if (err) throw err;
-                res.json({ token });
-            }
-        );
+        const token = await createToken(user.id);
+        res.json({ token, inviteCode });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
+    }
+});
+
+// @route   POST api/auth/register-with-code
+// @desc    Register user with invite code (Join Universe - Flow 2)
+// @access  Public
+router.post('/register-with-code', async (req, res) => {
+    const { username, email, password, profilePicture, inviteCode } = req.body;
+
+    try {
+        // Validate invite code
+        const partner = await User.findOne({ inviteCode });
+        if (!partner) {
+            return res.status(400).json({ msg: 'Invalid invite code' });
+        }
+
+        if (partner.inviteCodeExpiry && partner.inviteCodeExpiry < new Date()) {
+            return res.status(400).json({ msg: 'Invite code has expired. Ask your partner to generate a new one.' });
+        }
+
+        if (partner.partnerId) {
+            return res.status(400).json({ msg: 'This invite code has already been used' });
+        }
+
+        // Check existing user
+        let user = await User.findOne({ email });
+        if (user) {
+            return res.status(400).json({ msg: 'User already exists' });
+        }
+
+        let existingUsername = await User.findOne({ username });
+        if (existingUsername) {
+            return res.status(400).json({ msg: 'Username already taken' });
+        }
+
+        // Create the new user
+        user = new User({
+            username,
+            email,
+            password,
+            profilePicture: profilePicture || null
+        });
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+
+        await user.save();
+
+        // Link both partners
+        user.partnerId = partner._id;
+        partner.partnerId = user._id;
+        partner.inviteCode = undefined;
+        partner.inviteCodeExpiry = undefined;
+
+        await user.save();
+        await partner.save();
+
+        const token = await createToken(user.id);
+        res.json({ token, partnerName: partner.username });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+
+// @route   POST api/auth/google
+// @desc    Google Sign-In (register or login)
+// @access  Public
+router.post('/google', async (req, res) => {
+    const { credential, inviteCode: joinCode } = req.body;
+
+    try {
+        // Verify the Google token
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID
+        });
+
+        const { sub: googleId, email, name, picture } = ticket.getPayload();
+
+        // Check if user already exists with this Google ID
+        let user = await User.findOne({ googleId });
+
+        if (user) {
+            // Existing user — just log in
+            const token = await createToken(user.id);
+            return res.json({ token });
+        }
+
+        // Check if an account exists with this email (merge)
+        user = await User.findOne({ email });
+        if (user) {
+            user.googleId = googleId;
+            if (!user.profilePicture && picture) {
+                user.profilePicture = picture;
+            }
+            await user.save();
+            const token = await createToken(user.id);
+            return res.json({ token });
+        }
+
+        // New user — register via Google
+        // Generate a unique username from Google name
+        let username = name.replace(/\s+/g, '').toLowerCase();
+        let usernameExists = await User.findOne({ username });
+        let counter = 1;
+        while (usernameExists) {
+            username = `${name.replace(/\s+/g, '').toLowerCase()}${counter}`;
+            usernameExists = await User.findOne({ username });
+            counter++;
+        }
+
+        // If joining with an invite code
+        if (joinCode) {
+            const partner = await User.findOne({ inviteCode: joinCode });
+            if (!partner) {
+                return res.status(400).json({ msg: 'Invalid invite code' });
+            }
+            if (partner.inviteCodeExpiry && partner.inviteCodeExpiry < new Date()) {
+                return res.status(400).json({ msg: 'Invite code has expired' });
+            }
+            if (partner.partnerId) {
+                return res.status(400).json({ msg: 'This invite code has already been used' });
+            }
+
+            user = new User({
+                username,
+                email,
+                googleId,
+                profilePicture: picture || null
+            });
+            await user.save();
+
+            // Link partners
+            user.partnerId = partner._id;
+            partner.partnerId = user._id;
+            partner.inviteCode = undefined;
+            partner.inviteCodeExpiry = undefined;
+            await user.save();
+            await partner.save();
+
+            const token = await createToken(user.id);
+            return res.json({ token, partnerName: partner.username });
+        }
+
+        // Creating a new universe (no invite code)
+        let inviteCode = generateInviteCode();
+        let codeExists = await User.findOne({ inviteCode });
+        while (codeExists) {
+            inviteCode = generateInviteCode();
+            codeExists = await User.findOne({ inviteCode });
+        }
+
+        user = new User({
+            username,
+            email,
+            googleId,
+            profilePicture: picture || null,
+            inviteCode,
+            inviteCodeExpiry: new Date(Date.now() + 48 * 60 * 60 * 1000)
+        });
+        await user.save();
+
+        const token = await createToken(user.id);
+        res.json({ token, inviteCode });
+    } catch (err) {
+        console.error('Google auth error:', err.message);
+        res.status(500).json({ msg: 'Google authentication failed' });
     }
 });
 
@@ -66,27 +254,19 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ msg: 'Invalid Credentials' });
         }
 
+        // If user signed up with Google only (no password)
+        if (!user.password) {
+            return res.status(400).json({ msg: 'This account uses Google Sign-In. Please use the Google button to log in.' });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
             return res.status(400).json({ msg: 'Invalid Credentials' });
         }
 
-        const payload = {
-            user: {
-                id: user.id
-            }
-        };
-
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET,
-            { expiresIn: 360000 },
-            (err, token) => {
-                if (err) throw err;
-                res.json({ token });
-            }
-        );
+        const token = await createToken(user.id);
+        res.json({ token });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
@@ -100,6 +280,40 @@ router.get('/user', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
         res.json(user);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   GET api/auth/invite-code
+// @desc    Get or regenerate invite code
+// @access  Private
+router.get('/invite-code', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (user.partnerId) {
+            return res.status(400).json({ msg: 'You are already linked with a partner' });
+        }
+
+        // If code is expired or doesn't exist, generate a new one
+        if (!user.inviteCode || (user.inviteCodeExpiry && user.inviteCodeExpiry < new Date())) {
+            let inviteCode = generateInviteCode();
+            let codeExists = await User.findOne({ inviteCode });
+            while (codeExists) {
+                inviteCode = generateInviteCode();
+                codeExists = await User.findOne({ inviteCode });
+            }
+            user.inviteCode = inviteCode;
+            user.inviteCodeExpiry = new Date(Date.now() + 48 * 60 * 60 * 1000);
+            await user.save();
+        }
+
+        res.json({
+            inviteCode: user.inviteCode,
+            expiresAt: user.inviteCodeExpiry
+        });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

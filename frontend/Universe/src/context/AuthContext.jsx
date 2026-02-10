@@ -13,7 +13,9 @@ const authReducer = (state, action) => {
                 token: action.payload.token,
                 isAuthenticated: true,
                 loading: false,
-                user: action.payload.user
+                user: action.payload.user,
+                inviteCode: action.payload.inviteCode || null,
+                partnerName: action.payload.partnerName || null
             };
         case 'AUTH_ERROR':
         case 'LOGIN_FAIL':
@@ -25,7 +27,10 @@ const authReducer = (state, action) => {
                 token: null,
                 isAuthenticated: false,
                 loading: false,
-                user: null
+                user: null,
+                error: action.payload || null,
+                inviteCode: null,
+                partnerName: null
             };
         case 'USER_LOADED':
             return {
@@ -33,6 +38,11 @@ const authReducer = (state, action) => {
                 isAuthenticated: true,
                 loading: false,
                 user: action.payload
+            };
+        case 'CLEAR_ERROR':
+            return {
+                ...state,
+                error: null
             };
         default:
             return state;
@@ -44,7 +54,10 @@ export const AuthProvider = ({ children }) => {
         token: localStorage.getItem('token'),
         isAuthenticated: null,
         loading: true,
-        user: null
+        user: null,
+        error: null,
+        inviteCode: null,
+        partnerName: null
     };
 
     const [state, dispatch] = useReducer(authReducer, initialState);
@@ -68,9 +81,9 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         loadUser();
-    }, []); // Run once on mount
+    }, []);
 
-    // Register User
+    // Register User (Create Universe - Flow 1)
     const register = async (formData) => {
         const config = {
             headers: {
@@ -86,15 +99,74 @@ export const AuthProvider = ({ children }) => {
                 payload: res.data
             });
 
-            // Explicitly set token before loading user
             setAuthToken(res.data.token);
-
             await loadUser();
+
+            return { success: true, inviteCode: res.data.inviteCode };
         } catch (err) {
             dispatch({
                 type: 'REGISTER_FAIL',
                 payload: err.response?.data?.msg || 'Registration failed'
             });
+            return { success: false, error: err.response?.data?.msg || 'Registration failed' };
+        }
+    };
+
+    // Register with Invite Code (Join Universe - Flow 2)
+    const registerWithCode = async (formData) => {
+        const config = {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        try {
+            const res = await axios.post('http://localhost:5000/api/auth/register-with-code', formData, config);
+
+            dispatch({
+                type: 'REGISTER_SUCCESS',
+                payload: res.data
+            });
+
+            setAuthToken(res.data.token);
+            await loadUser();
+
+            return { success: true, partnerName: res.data.partnerName };
+        } catch (err) {
+            dispatch({
+                type: 'REGISTER_FAIL',
+                payload: err.response?.data?.msg || 'Registration failed'
+            });
+            return { success: false, error: err.response?.data?.msg || 'Registration failed' };
+        }
+    };
+
+    // Google Sign-In
+    const googleLogin = async (credential, inviteCode = null) => {
+        const config = {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        try {
+            const res = await axios.post('http://localhost:5000/api/auth/google', { credential, inviteCode }, config);
+
+            dispatch({
+                type: 'REGISTER_SUCCESS',
+                payload: res.data
+            });
+
+            setAuthToken(res.data.token);
+            await loadUser();
+
+            return { success: true, inviteCode: res.data.inviteCode, partnerName: res.data.partnerName };
+        } catch (err) {
+            dispatch({
+                type: 'REGISTER_FAIL',
+                payload: err.response?.data?.msg || 'Google authentication failed'
+            });
+            return { success: false, error: err.response?.data?.msg || 'Google authentication failed' };
         }
     };
 
@@ -114,20 +186,24 @@ export const AuthProvider = ({ children }) => {
                 payload: res.data
             });
 
-            // Explicitly set token before loading user
             setAuthToken(res.data.token);
-
             await loadUser();
+
+            return { success: true };
         } catch (err) {
             dispatch({
                 type: 'LOGIN_FAIL',
                 payload: err.response?.data?.msg || 'Login failed'
             });
+            return { success: false, error: err.response?.data?.msg || 'Login failed' };
         }
     };
 
     // Logout
     const logout = () => dispatch({ type: 'LOGOUT' });
+
+    // Clear Error
+    const clearError = () => dispatch({ type: 'CLEAR_ERROR' });
 
     return (
         <AuthContext.Provider
@@ -136,9 +212,15 @@ export const AuthProvider = ({ children }) => {
                 isAuthenticated: state.isAuthenticated,
                 loading: state.loading,
                 user: state.user,
+                error: state.error,
+                inviteCode: state.inviteCode,
+                partnerName: state.partnerName,
                 register,
+                registerWithCode,
+                googleLogin,
                 login,
-                logout
+                logout,
+                clearError
             }}
         >
             {children}
