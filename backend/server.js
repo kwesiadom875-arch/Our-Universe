@@ -42,7 +42,7 @@ const frontendBuildPath = path.join(__dirname, '..', 'frontend', 'Universe', 'di
 app.use(express.static(frontendBuildPath));
 
 // Catch-all: serve index.html for any non-API route (React Router support)
-app.get('*', (req, res) => {
+app.get('/{*splat}', (req, res) => {
     res.sendFile(path.join(frontendBuildPath, 'index.html'));
 });
 
