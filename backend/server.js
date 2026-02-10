@@ -21,7 +21,6 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/our-univers
     .then(() => console.log('MongoDB Connected Successfully'))
     .catch(err => {
         console.error('MongoDB Connection Error:', err.message);
-        // process.exit(1); // Optional: exit if DB fails
     });
 
 // Define Routes
@@ -33,13 +32,21 @@ app.use('/api/events', require('./routes/events'));
 app.use('/api/memories', require('./routes/memories'));
 app.use('/api/upload', require('./routes/upload'));
 
-
 // The API Route
 app.get('/api/data', (req, res) => {
     res.json({ message: "Hello from Node.js!" });
 });
 
+// --- Serve React Frontend in Production ---
+const frontendBuildPath = path.join(__dirname, '..', 'frontend', 'Universe', 'dist');
+app.use(express.static(frontendBuildPath));
+
+// Catch-all: serve index.html for any non-API route (React Router support)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendBuildPath, 'index.html'));
+});
+
 // Start the Server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
 });

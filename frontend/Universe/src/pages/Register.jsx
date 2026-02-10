@@ -3,6 +3,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import AuthContext from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Camera, User, Mail, Lock, Eye, EyeOff, Copy, Check, Sparkles, Star, Heart, Rocket, Send, MessageCircle } from 'lucide-react';
+import API_BASE_URL from '../config/api';
 import '../styles/auth.css';
 
 const Register = () => {
@@ -75,7 +76,7 @@ const Register = () => {
         const formData = new FormData();
         formData.append('image', profileFile);
         try {
-            const res = await fetch('http://localhost:5000/api/upload/profile-picture', {
+            const res = await fetch(`${API_BASE_URL}/api/upload/profile-picture`, {
                 method: 'POST',
                 body: formData
             });

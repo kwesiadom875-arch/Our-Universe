@@ -1,0 +1,17 @@
+{
+    "name": "our-universe",
+    "version": "1.0.0",
+    "description": "Our Universe - Full Stack App",
+    "scripts": {
+        "install:backend": "cd backend && npm install",
+        "install:frontend": "cd frontend/Universe && npm install",
+        "postinstall": "npm run install:backend && npm run install:frontend",
+        "build": "cd frontend/Universe && npm run build",
+        "start": "cd backend && npm start",
+        "dev:backend": "cd backend && npm run dev",
+        "dev:frontend": "cd frontend/Universe && npm run dev"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}

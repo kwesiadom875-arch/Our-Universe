@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import { Film, Popcorn, Star, X, Heart, Sparkles } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
@@ -33,7 +34,7 @@ const MovieMatcher = () => {
         const fetchMovies = async () => {
             try {
                 const config = { headers: { 'x-auth-token': token } };
-                const res = await axios.get('http://localhost:5000/api/movies/popular', config);
+                const res = await axios.get(`${API_BASE_URL}/api/movies/popular`, config);
                 setMovies(res.data.results);
             } catch (err) {
                 console.error("Error fetching movies:", err);
@@ -42,7 +43,7 @@ const MovieMatcher = () => {
         const fetchMatches = async () => {
             try {
                 const config = { headers: { 'x-auth-token': token } };
-                const res = await axios.get('http://localhost:5000/api/movies/matches', config);
+                const res = await axios.get(`${API_BASE_URL}/api/movies/matches`, config);
                 setMatches(res.data);
             } catch (err) {
                 console.error("Error fetching matches:", err);
@@ -85,7 +86,7 @@ const MovieMatcher = () => {
                 posterPath: movie.poster_path,
                 action
             };
-            const res = await axios.post('http://localhost:5000/api/movies/swipe', payload, config);
+            const res = await axios.post(`${API_BASE_URL}/api/movies/swipe`, payload, config);
 
             if (res.data.match) {
                 setNewMatch(res.data.movieData);

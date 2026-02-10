@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useMotionValue } from 'framer-motion';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import { Plus, Sticker, Save } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import MemoryItem from '../components/Scrapbook/MemoryItem';
@@ -23,7 +24,7 @@ const Scrapbook = () => {
         const fetchMemories = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/memories', {
+                const res = await axios.get(`${API_BASE_URL}/api/memories`, {
                     headers: { 'x-auth-token': token }
                 });
                 setMemories(res.data);
@@ -55,7 +56,7 @@ const Scrapbook = () => {
                 zIndex: memories.length + 1
             };
 
-            const res = await axios.post('http://localhost:5000/api/memories', newMemory, {
+            const res = await axios.post(`${API_BASE_URL}/api/memories`, newMemory, {
                 headers: { 'x-auth-token': token }
             });
 
@@ -72,7 +73,7 @@ const Scrapbook = () => {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:5000/api/memories/${id}`, { position: newPos }, {
+            await axios.put(`${API_BASE_URL}/api/memories/${id}`, { position: newPos }, {
                 headers: { 'x-auth-token': token }
             });
         } catch (err) {
@@ -84,7 +85,7 @@ const Scrapbook = () => {
     const handleDeleteMemory = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/memories/${id}`, {
+            await axios.delete(`${API_BASE_URL}/api/memories/${id}`, {
                 headers: { 'x-auth-token': token }
             });
             setMemories(prev => prev.filter(m => m._id !== id));

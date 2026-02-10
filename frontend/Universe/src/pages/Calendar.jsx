@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import { ChevronLeft, ChevronRight, Plus, Sparkles, User, Heart, Users, CalendarDays } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import Layout from '../components/Layout';
@@ -30,7 +31,7 @@ const Calendar = () => {
         const fetchEvents = async () => {
             try {
                 const config = { headers: { 'x-auth-token': token } };
-                const res = await axios.get('http://localhost:5000/api/events', config);
+                const res = await axios.get(`${API_BASE_URL}/api/events`, config);
                 setEvents(res.data);
             } catch (err) {
                 console.error("Error fetching events:", err);
@@ -94,7 +95,7 @@ const Calendar = () => {
                     'x-auth-token': token
                 }
             };
-            const res = await axios.post('http://localhost:5000/api/events', newEvent, config);
+            const res = await axios.post(`${API_BASE_URL}/api/events`, newEvent, config);
             setEvents([...events, res.data]);
             setIsModalOpen(false);
             setEventData({ title: '', date: '', startTime: '', endTime: '', description: '' });

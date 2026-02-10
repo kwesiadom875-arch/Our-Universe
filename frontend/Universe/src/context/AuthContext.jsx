@@ -1,5 +1,6 @@
 import { createContext, useReducer, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 
 const AuthContext = createContext();
 
@@ -69,7 +70,7 @@ export const AuthProvider = ({ children }) => {
         }
 
         try {
-            const res = await axios.get('http://localhost:5000/api/auth/user');
+            const res = await axios.get(`${API_BASE_URL}/api/auth/user`);
             dispatch({
                 type: 'USER_LOADED',
                 payload: res.data
@@ -92,7 +93,7 @@ export const AuthProvider = ({ children }) => {
         };
 
         try {
-            const res = await axios.post('http://localhost:5000/api/auth/register', formData, config);
+            const res = await axios.post(`${API_BASE_URL}/api/auth/register`, formData, config);
 
             dispatch({
                 type: 'REGISTER_SUCCESS',
@@ -121,7 +122,7 @@ export const AuthProvider = ({ children }) => {
         };
 
         try {
-            const res = await axios.post('http://localhost:5000/api/auth/register-with-code', formData, config);
+            const res = await axios.post(`${API_BASE_URL}/api/auth/register-with-code`, formData, config);
 
             dispatch({
                 type: 'REGISTER_SUCCESS',
@@ -150,7 +151,7 @@ export const AuthProvider = ({ children }) => {
         };
 
         try {
-            const res = await axios.post('http://localhost:5000/api/auth/google', { credential, inviteCode }, config);
+            const res = await axios.post(`${API_BASE_URL}/api/auth/google`, { credential, inviteCode }, config);
 
             dispatch({
                 type: 'REGISTER_SUCCESS',
@@ -179,7 +180,7 @@ export const AuthProvider = ({ children }) => {
         };
 
         try {
-            const res = await axios.post('http://localhost:5000/api/auth/login', formData, config);
+            const res = await axios.post(`${API_BASE_URL}/api/auth/login`, formData, config);
 
             dispatch({
                 type: 'LOGIN_SUCCESS',

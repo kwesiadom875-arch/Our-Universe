@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { X, Image as ImageIcon, Type, Check, Upload } from 'lucide-react';
 import axios from 'axios';
+import API_BASE_URL from '../../config/api';
 import '../../styles/scrapbook.css';
 
 const NOTE_COLORS = [
@@ -40,7 +41,7 @@ const AddMemoryModal = ({ isOpen, onClose, onAddMemory }) => {
             const formData = new FormData();
             formData.append('image', file);
 
-            const res = await axios.post('http://localhost:5000/api/upload', formData, {
+            const res = await axios.post(`${API_BASE_URL}/api/upload`, formData, {
                 headers: {
                     'x-auth-token': token,
                     'Content-Type': 'multipart/form-data'

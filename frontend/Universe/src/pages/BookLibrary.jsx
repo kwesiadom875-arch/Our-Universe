@@ -8,9 +8,10 @@ import {
 } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import Layout from '../components/Layout';
+import API_BASE_URL from '../config/api';
 import '../styles/library.css';
 
-const API = 'http://localhost:5000/api/library';
+const API = `${API_BASE_URL}/api/library`;
 
 // ─── Character Tooltip Component ────────────────────────────────────────
 const CharacterTooltip = ({ character, position }) => {

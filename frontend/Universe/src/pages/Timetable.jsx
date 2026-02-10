@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import { ChevronLeft, ChevronRight, Heart, HeartHandshake, User, Users, GraduationCap, FileText, Trophy, MapPin, Sparkles, BookOpen, Plus, Clock } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import Layout from '../components/Layout';
@@ -30,7 +31,7 @@ const Timetable = () => {
         const fetchClasses = async () => {
             try {
                 const config = { headers: { 'x-auth-token': token } };
-                const res = await axios.get('http://localhost:5000/api/timetable', config);
+                const res = await axios.get(`${API_BASE_URL}/api/timetable`, config);
                 setClasses(res.data);
             } catch (err) {
                 console.error("Error fetching timetable:", err);
@@ -107,7 +108,7 @@ const Timetable = () => {
                     'x-auth-token': token
                 }
             };
-            const res = await axios.post('http://localhost:5000/api/timetable', newClass, config);
+            const res = await axios.post(`${API_BASE_URL}/api/timetable`, newClass, config);
             setClasses([...classes, res.data]);
             setIsModalOpen(false);
             setClassData({ subject: '', location: '', startTime: '', endTime: '' });
