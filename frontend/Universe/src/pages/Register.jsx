@@ -498,7 +498,6 @@ const Register = () => {
                             onError={() => setFormError('Google Sign-In failed')}
                             theme="outline"
                             size="large"
-                            width="100%"
                             text="signup_with"
                             shape="rectangular"
                         />

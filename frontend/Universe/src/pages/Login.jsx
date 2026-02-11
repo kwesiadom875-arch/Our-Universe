@@ -142,7 +142,6 @@ const Login = () => {
                             onError={() => setFormError('Google Sign-In failed')}
                             theme="outline"
                             size="large"
-                            width="100%"
                             text="signin_with"
                             shape="rectangular"
                         />
