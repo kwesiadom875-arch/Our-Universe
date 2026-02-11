@@ -89,9 +89,9 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
             >
-                <div className="modal-close-btn" onClick={onClose}>
+                <button className="modal-close-btn" onClick={onClose} aria-label="Close modal">
                     <X size={24} />
-                </div>
+                </button>
 
                 <div className="modal-header-center">
                     <div className="magic-wand-icon">
@@ -131,6 +131,7 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                                     className="magic-fetch-btn"
                                     onClick={handleMagicFetch}
                                     disabled={loading}
+                                    aria-label="Fetch scent details from link"
                                 >
                                     {loading ? <Loader2 className="spin" size={18} /> : (
                                         <>Magic Fetch <span className="flask-icon">⚗️</span></>
@@ -144,7 +145,7 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                 >
-                                    <img src={fetchedData.image} alt="Preview" />
+                                    <img src={fetchedData.image} alt={`Fetched image of ${fetchedData.name}`} />
                                     <div className="preview-info">
                                         <h4>{fetchedData.name}</h4>
                                         <span>{fetchedData.brand}</span>

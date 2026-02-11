@@ -63,7 +63,7 @@ if (fs.existsSync(frontendBuildPath)) {
     app.use(express.static(frontendBuildPath));
 
     // Catch-all: serve index.html for any non-API route (React Router support)
-    app.get('/{*splat}', (req, res) => {
+    app.get('*', (req, res) => {
         res.sendFile(indexHtmlPath);
     });
     console.log('Serving frontend from:', frontendBuildPath);
