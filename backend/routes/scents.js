@@ -240,7 +240,6 @@ router.post('/scrape', auth, async (req, res) => {
 // @access  Private
 router.post('/:id/journals', auth, async (req, res) => {
     try {
-        const user = await require('../models/User').findById(req.user.id);
         const scent = await Scent.findById(req.params.id);
 
         if (!scent) {
@@ -248,7 +247,7 @@ router.post('/:id/journals', auth, async (req, res) => {
         }
 
         const newJournal = {
-            user: user.username || "Anonymous", // Use user's name or default
+            user: req.user.username || "Anonymous", // Use username from token or default
             text: req.body.text,
             date: new Date()
         };

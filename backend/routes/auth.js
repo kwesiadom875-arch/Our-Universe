@@ -16,9 +16,9 @@ const generateInviteCode = () => {
 };
 
 // Helper: create JWT token
-const createToken = (userId) => {
+const createToken = (userId, username) => {
     return new Promise((resolve, reject) => {
-        const payload = { user: { id: userId } };
+        const payload = { user: { id: userId, username } };
         jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 360000 }, (err, token) => {
             if (err) reject(err);
             resolve(token);
@@ -66,7 +66,7 @@ router.post('/register', authLimiter, async (req, res) => {
 
         await user.save();
 
-        const token = await createToken(user.id);
+        const token = await createToken(user.id, user.username);
         res.json({ token, inviteCode });
     } catch (err) {
         console.error(err.message);
@@ -128,7 +128,7 @@ router.post('/register-with-code', authLimiter, async (req, res) => {
         await user.save();
         await partner.save();
 
-        const token = await createToken(user.id);
+        const token = await createToken(user.id, user.username);
         res.json({ token, partnerName: partner.username });
     } catch (err) {
         console.error(err.message);
@@ -156,7 +156,7 @@ router.post('/google', authLimiter, async (req, res) => {
 
         if (user) {
             // Existing user — just log in
-            const token = await createToken(user.id);
+            const token = await createToken(user.id, user.username);
             return res.json({ token });
         }
 
@@ -168,7 +168,7 @@ router.post('/google', authLimiter, async (req, res) => {
                 user.profilePicture = picture;
             }
             await user.save();
-            const token = await createToken(user.id);
+            const token = await createToken(user.id, user.username);
             return res.json({ token });
         }
 
@@ -212,7 +212,7 @@ router.post('/google', authLimiter, async (req, res) => {
             await user.save();
             await partner.save();
 
-            const token = await createToken(user.id);
+            const token = await createToken(user.id, user.username);
             return res.json({ token, partnerName: partner.username });
         }
 
@@ -234,7 +234,7 @@ router.post('/google', authLimiter, async (req, res) => {
         });
         await user.save();
 
-        const token = await createToken(user.id);
+        const token = await createToken(user.id, user.username);
         res.json({ token, inviteCode });
     } catch (err) {
         console.error('Google auth error:', err.message);
@@ -266,7 +266,7 @@ router.post('/login', authLimiter, async (req, res) => {
             return res.status(400).json({ msg: 'Invalid Credentials' });
         }
 
-        const token = await createToken(user.id);
+        const token = await createToken(user.id, user.username);
         res.json({ token });
     } catch (err) {
         console.error(err.message);
