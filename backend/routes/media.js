@@ -6,7 +6,7 @@ const Swipe = require('../models/Swipe');
 const User = require('../models/User');
 const axios = require('axios');
 
-const TMDB_API_KEY = '9030d6fc7634373348182586f61ef12d'; // Ideally use process.env
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
 // @route   POST api/media/add
 // @desc    Add item to "Watched" list
