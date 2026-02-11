@@ -13,6 +13,7 @@ import BookLibrary from './pages/BookLibrary';
 import Scents from './pages/Scents';
 import ScentDetails from './pages/ScentDetails';
 import Scrapbook from './pages/Scrapbook';
+import Profile from './pages/Profile';
 import PrivateRoute from './components/PrivateRoute';
 import './App.css';
 
@@ -100,6 +101,14 @@ function App() {
                   element={
                     <PrivateRoute>
                       <Scrapbook />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <PrivateRoute>
+                      <Profile />
                     </PrivateRoute>
                   }
                 />

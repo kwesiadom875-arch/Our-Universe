@@ -4,11 +4,17 @@ const auth = require('../middleware/auth');
 const Event = require('../models/Event');
 
 // @route   GET api/events
-// @desc    Get all events
+// @desc    Get all events for user and partner
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
-        const events = await Event.find({ user: req.user.id }).sort({ date: 1 });
+        const user = await require('../models/User').findById(req.user.id);
+        const userIds = [req.user.id];
+        if (user.partnerId) {
+            userIds.push(user.partnerId);
+        }
+
+        const events = await Event.find({ user: { $in: userIds } }).sort({ date: 1 });
         res.json(events);
     } catch (err) {
         console.error(err.message);

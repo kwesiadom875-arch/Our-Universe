@@ -4,6 +4,7 @@ import API_BASE_URL from '../config/api';
 import { ChevronLeft, ChevronRight, Plus, Sparkles, User, Heart, Users, CalendarDays } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import Layout from '../components/Layout';
+import NotificationContext from '../context/NotificationContext';
 import '../styles/calendar.css';
 import '../styles/timetable.css'; // Importing for shared modal/utility styles if needed
 

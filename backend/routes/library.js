@@ -28,11 +28,17 @@ router.get('/search', auth, async (req, res) => {
 });
 
 // @route   GET api/library
-// @desc    Get all books in user's library
+// @desc    Get all books in user's library and partner's library
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
-        const books = await LibraryItem.find({ user: req.user.id }).sort({ createdAt: -1 });
+        const user = await require('../models/User').findById(req.user.id);
+        const userIds = [req.user.id];
+        if (user.partnerId) {
+            userIds.push(user.partnerId);
+        }
+
+        const books = await LibraryItem.find({ user: { $in: userIds } }).sort({ createdAt: -1 });
         res.json(books);
     } catch (err) {
         console.error(err.message);

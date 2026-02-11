@@ -4,11 +4,17 @@ const auth = require('../middleware/auth');
 const Scent = require('../models/Scent');
 
 // @route   GET api/scents
-// @desc    Get all scents for a user
+// @desc    Get all scents for a user and their partner
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
-        const scents = await Scent.find({ user: req.user.id }).sort({ dateAdded: -1 });
+        const user = await require('../models/User').findById(req.user.id);
+        const userIds = [req.user.id];
+        if (user.partnerId) {
+            userIds.push(user.partnerId);
+        }
+
+        const scents = await Scent.find({ user: { $in: userIds } }).sort({ dateAdded: -1 });
         res.json(scents);
     } catch (err) {
         console.error(err.message);

@@ -4,12 +4,18 @@ const auth = require('../middleware/auth');
 const Timetable = require('../models/Timetable');
 
 // @route   GET api/timetable
-// @desc    Get all classes for logged in user
+// @desc    Get all classes for logged in user and partner
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
+        const user = await require('../models/User').findById(req.user.id);
+        const userIds = [req.user.id];
+        if (user.partnerId) {
+            userIds.push(user.partnerId);
+        }
+
         // Sort by day and start time could be complex, for now just return all
-        const classes = await Timetable.find({ user: req.user.id });
+        const classes = await Timetable.find({ user: { $in: userIds } });
         res.json(classes);
     } catch (err) {
         console.error(err.message);

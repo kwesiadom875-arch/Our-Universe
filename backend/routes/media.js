@@ -39,11 +39,17 @@ router.post('/add', auth, async (req, res) => {
 });
 
 // @route   GET api/media/watched
-// @desc    Get all watched items
+// @desc    Get all watched items for user and partner
 // @access  Private
 router.get('/watched', auth, async (req, res) => {
     try {
-        const items = await MediaItem.find({ user: req.user.id }).sort({ dateAdded: -1 });
+        const user = await User.findById(req.user.id);
+        const userIds = [req.user.id];
+        if (user.partnerId) {
+            userIds.push(user.partnerId);
+        }
+
+        const items = await MediaItem.find({ user: { $in: userIds } }).sort({ dateAdded: -1 });
         res.json(items);
     } catch (err) {
         console.error(err.message);

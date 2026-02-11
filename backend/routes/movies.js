@@ -12,8 +12,12 @@ router.get('/popular', auth, async (req, res) => {
     try {
         const API_KEY = process.env.TMDB_API_KEY;
 
-        // 1. Get IDs of movies the user has already swiped on
-        const userSwipes = await Swipe.find({ user: req.user.id }).select('tmdbId');
+        // 1. Get IDs of movies the user (and partner) has already swiped on
+        const user = await User.findById(req.user.id);
+        const userIds = [req.user.id];
+        if (user.partnerId) userIds.push(user.partnerId);
+
+        const userSwipes = await Swipe.find({ user: { $in: userIds } }).select('tmdbId');
         const seenMovieIds = new Set(userSwipes.map(s => s.tmdbId));
 
         let candidateMovies = [];
@@ -81,15 +85,23 @@ router.post('/swipe', auth, async (req, res) => {
         }
 
         // 3. If it's a LIKE, check if partner liked it
-        // First, find the partner. For now, we check ALL other users who liked this movie.
-        // In a real app with 'partnerId', we would strictly check the partner.
-        // We'll search for ANY 'like' on this movie by a DIFFERENT user.
+        const user = await User.findById(req.user.id);
+        let potentialMatch = null;
 
-        const potentialMatch = await Swipe.findOne({
-            tmdbId,
-            action: 'like',
-            user: { $ne: req.user.id } // Not me
-        });
+        if (user.partnerId) {
+            potentialMatch = await Swipe.findOne({
+                tmdbId,
+                action: 'like',
+                user: user.partnerId
+            });
+        } else {
+            // Fallback: check ANY other user (for demo purposes if no partner linked)
+            potentialMatch = await Swipe.findOne({
+                tmdbId,
+                action: 'like',
+                user: { $ne: req.user.id }
+            });
+        }
 
         if (potentialMatch) {
             // IT'S A MATCH!
@@ -116,11 +128,22 @@ router.get('/matches', auth, async (req, res) => {
         if (myLikedIds.length === 0) return res.json([]);
 
         // 2. Find which of these movies have ALSO been liked by others (partner)
-        const matches = await Swipe.find({
-            tmdbId: { $in: myLikedIds },
-            action: 'like',
-            user: { $ne: req.user.id }
-        });
+        const user = await User.findById(req.user.id);
+        let matches = [];
+
+        if (user.partnerId) {
+            matches = await Swipe.find({
+                tmdbId: { $in: myLikedIds },
+                action: 'like',
+                user: user.partnerId
+            });
+        } else {
+            matches = await Swipe.find({
+                tmdbId: { $in: myLikedIds },
+                action: 'like',
+                user: { $ne: req.user.id }
+            });
+        }
 
         // Deduplicate matches (if multiple people matched, though currently 1-1)
         // We return the MOVIE details
@@ -137,6 +160,7 @@ router.get('/matches', auth, async (req, res) => {
                 });
             }
         }
+
 
         res.json(uniqueMatches);
     } catch (err) {

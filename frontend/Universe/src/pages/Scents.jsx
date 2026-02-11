@@ -9,16 +9,20 @@ import { Plus, Search, Heart, Sparkles, Wind, Droplets, Leaf } from 'lucide-reac
 import '../styles/scents.css';
 
 const Scents = () => {
-    const { token } = useContext(AuthContext);
+    const { token, user } = useContext(AuthContext);
     const [scents, setScents] = useState([]);
-    const [view, setView] = useState('my_collection'); // 'my_collection', 'her_collection', 'wishlist'
+    const [view, setView] = useState('my_collection'); // 'my_collection', 'partner_collection', 'wishlist'
     const [showAddModal, setShowAddModal] = useState(false);
 
     const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1616949755610-8c977f9f3b1e?auto=format&fit=crop&q=80&w=800'; // Elegant perfume bottle fallback
 
     // Stats placeholder - Ensure scents is an array
     const safeScents = Array.isArray(scents) ? scents : [];
-    const totalScents = safeScents.filter(s => s.myCollection).length;
+
+    // Filter for MY scents only
+    const myScents = safeScents.filter(s => s.user === user?._id && s.myCollection);
+    const totalScents = myScents.length;
+
     const mostUsedAccord = "Woody"; // Placeholder calculation
     const nextWishlist = safeScents.find(s => s.wishlist)?.name || "Desert Rose";
 
@@ -50,7 +54,15 @@ const Scents = () => {
     };
 
     const filteredScents = safeScents.filter(s => {
-        if (view === 'my_collection') return s.myCollection;
+        if (view === 'my_collection') {
+            return s.user === user?._id && s.myCollection;
+        }
+        if (view === 'partner_collection') {
+            // Check if it belongs to partner (not me)
+            // If they are linked, we assume anything not mine is theirs in this filtered view (fetched from API)
+            // But strictly: s.user !== user._id
+            return s.user !== user?._id && s.myCollection;
+        }
         if (view === 'wishlist') return s.wishlist;
         return false;
     });
@@ -62,6 +74,8 @@ const Scents = () => {
             default: return <Wind size={12} />;
         }
     };
+
+    const partnerName = user?.partnerDetails?.username ? `${user.partnerDetails.username}'s` : "Partner's";
 
     return (
         <Layout>
@@ -91,10 +105,10 @@ const Scents = () => {
                             My Collection
                         </button>
                         <button
-                            className={view === 'her_collection' ? 'active' : ''}
-                            onClick={() => setView('her_collection')}
+                            className={view === 'partner_collection' ? 'active' : ''}
+                            onClick={() => setView('partner_collection')}
                         >
-                            Her Collection
+                            {partnerName} Collection
                         </button>
                         <button
                             className={view === 'wishlist' ? 'active' : ''}

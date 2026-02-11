@@ -76,7 +76,9 @@ const Sidebar = () => {
                             alt="avatar"
                         />
                         <div className="user-details">
-                            <span className="username">{user?.username}</span>
+                            <NavLink to="/profile" className="username-link" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <span className="username">{user?.username}</span>
+                            </NavLink>
                             <button onClick={logout} className="btn-logout-mini">Logout</button>
                         </div>
                     </div>

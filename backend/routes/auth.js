@@ -279,8 +279,16 @@ router.post('/login', authLimiter, async (req, res) => {
 // @access  Private
 router.get('/user', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select('-password');
-        res.json(user);
+        const user = await User.findById(req.user.id).select('-password').populate('partnerId', 'username profilePicture');
+
+        // Transform for easier frontend consumption
+        const userData = user.toObject();
+        if (user.partnerId) {
+            userData.partnerDetails = user.partnerId;
+            userData.partnerId = user.partnerId._id; // Keep original ID field as just ID
+        }
+
+        res.json(userData);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -315,6 +323,45 @@ router.get('/invite-code', auth, async (req, res) => {
             inviteCode: user.inviteCode,
             expiresAt: user.inviteCodeExpiry
         });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   PUT api/auth/update
+// @desc    Update user profile
+// @access  Private
+router.put('/update', auth, async (req, res) => {
+    const { username, profilePicture, theme, timezone } = req.body;
+
+    // Build user object
+    const userFields = {};
+    if (username) userFields.username = username;
+    if (profilePicture) userFields.profilePicture = profilePicture;
+    if (theme) userFields.theme = theme;
+    if (timezone) userFields.timezone = timezone;
+
+    try {
+        let user = await User.findById(req.user.id);
+
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+
+        // Check if username is taken (if changing)
+        if (username && username !== user.username) {
+            let existingUsername = await User.findOne({ username });
+            if (existingUsername) {
+                return res.status(400).json({ msg: 'Username already taken' });
+            }
+        }
+
+        user = await User.findByIdAndUpdate(
+            req.user.id,
+            { $set: userFields },
+            { new: true }
+        ).select('-password');
+
+        res.json(user);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

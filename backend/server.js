@@ -44,8 +44,10 @@ app.use('/api/timetable', apiLimiter, require('./routes/timetable'));
 app.use('/api/movies', apiLimiter, require('./routes/movies'));
 app.use('/api/media', apiLimiter, require('./routes/media'));
 app.use('/api/scents', apiLimiter, require('./routes/scents'));
+app.use('/api/milestones', apiLimiter, require('./routes/milestones')); // New route
 app.use('/api/library', apiLimiter, require('./routes/library'));
 app.use('/api/upload', apiLimiter, require('./routes/upload'));
+app.use('/api/epub', apiLimiter, require('./routes/epub'));
 
 // The API Route
 app.get('/api/data', (req, res) => {

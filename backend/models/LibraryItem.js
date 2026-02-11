@@ -60,6 +60,14 @@ const LibraryItemSchema = new mongoose.Schema({
     notes: [NoteSchema],
     characters: [CharacterSchema],
 
+    // New fields for EPUB & Decor
+    fileUrl: { type: String }, // Path to uploaded EPUB
+    format: { type: String, enum: ['physical', 'ebook', 'audiobook'], default: 'physical' },
+    decor: [{
+        type: { type: String, enum: ['plant', 'candle', 'frame', 'crystal'] },
+        x: Number // Percentage from left (0-100)
+    }],
+
     createdAt: {
         type: Date,
         default: Date.now

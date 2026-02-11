@@ -206,6 +206,30 @@ export const AuthProvider = ({ children }) => {
     // Clear Error
     const clearError = () => dispatch({ type: 'CLEAR_ERROR' });
 
+    // Update Profile
+    const updateProfile = async (formData) => {
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+            const res = await axios.put(`${API_BASE_URL}/api/auth/update`, formData, config);
+
+            dispatch({
+                type: 'USER_LOADED',
+                payload: res.data
+            });
+            return { success: true };
+        } catch (err) {
+            dispatch({
+                type: 'AUTH_ERROR',
+                payload: err.response?.data?.msg || 'Update failed'
+            });
+            return { success: false, error: err.response?.data?.msg || 'Update failed' };
+        }
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -221,7 +245,8 @@ export const AuthProvider = ({ children }) => {
                 googleLogin,
                 login,
                 logout,
-                clearError
+                clearError,
+                updateProfile
             }}
         >
             {children}
