@@ -2,11 +2,13 @@ import { useState, useContext } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import AuthContext from '../context/AuthContext';
+import NotificationContext from '../context/NotificationContext';
 import { X, Link as LinkIcon, Edit3, Wand2, Loader2, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AddScentModal = ({ isOpen, onClose, onAdd }) => {
     const { token } = useContext(AuthContext);
+    const { addNotification } = useContext(NotificationContext);
     const [activeTab, setActiveTab] = useState('magic'); // 'magic' or 'manual'
     const [magicUrl, setMagicUrl] = useState('');
     const [loading, setLoading] = useState(false);
@@ -41,6 +43,7 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
             });
         } catch (err) {
             console.error("Magic fetch failed:", err);
+            addNotification('error', 'Magic Fetch Failed', 'Could not fetch scent details. Please try manual entry.');
         } finally {
             setLoading(false);
         }
@@ -68,8 +71,10 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
             const res = await axios.post(`${API_BASE_URL}/api/scents`, payload, config);
             onAdd(res.data);
             onClose();
+            addNotification('success', 'Scent Added', `${payload.name} has been added to your collection.`);
         } catch (err) {
             console.error("Error adding scent:", err);
+            addNotification('error', 'Error', 'Failed to add scent. Please try again.');
         } finally {
             setLoading(false);
         }

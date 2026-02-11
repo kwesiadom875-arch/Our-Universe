@@ -7,6 +7,7 @@ import {
     FileText, Users, ChevronDown, MessageSquare, Check
 } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
+import NotificationContext from '../context/NotificationContext';
 import Layout from '../components/Layout';
 import API_BASE_URL from '../config/api';
 import '../styles/library.css';
@@ -143,6 +144,7 @@ const fadeUp = {
 // ═══════════════════════════════════════════════════════════════════════
 const BookLibrary = () => {
     const { token } = useContext(AuthContext);
+    const { addNotification } = useContext(NotificationContext);
     const [library, setLibrary] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -217,7 +219,7 @@ const BookLibrary = () => {
             setLibrary(res.data);
             closeSearch();
         } catch (err) {
-            alert(err.response?.data?.msg || 'Error adding book');
+            addNotification('error', 'Error', err.response?.data?.msg || 'Error adding book');
         }
     };
 
@@ -705,7 +707,7 @@ const BookLibrary = () => {
                                     <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
                                         <button className="btn-icon"><Bell size={20} /></button>
                                         <button className="btn-icon"><Moon size={20} /></button>
-                                        <button className="btn-icon" onClick={() => alert('Settings')}><Settings size={20} /></button>
+                                        <button className="btn-icon" onClick={() => addNotification('info', 'Settings', 'Settings functionality coming soon!')}><Settings size={20} /></button>
                                     </div>
                                 </div>
 

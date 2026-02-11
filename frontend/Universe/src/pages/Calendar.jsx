@@ -9,6 +9,7 @@ import '../styles/timetable.css'; // Importing for shared modal/utility styles i
 
 const Calendar = () => {
     const { token } = useContext(AuthContext);
+    const { addNotification } = useContext(NotificationContext);
     const [events, setEvents] = useState([]);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -74,7 +75,7 @@ const Calendar = () => {
     // Submit New Event
     const onSubmit = async () => {
         if (!eventData.title || !eventData.date) {
-            alert('Please fill in Title and Date');
+            addNotification('warning', 'Missing Information', 'Please fill in Title and Date');
             return;
         }
 
@@ -99,9 +100,10 @@ const Calendar = () => {
             setEvents([...events, res.data]);
             setIsModalOpen(false);
             setEventData({ title: '', date: '', startTime: '', endTime: '', description: '' });
+            addNotification('success', 'Event Added', `Successfully added ${newEvent.title} to your calendar.`);
         } catch (err) {
             console.error("Error adding event:", err);
-            alert("Failed to add event");
+            addNotification('error', 'Error', 'Failed to add event. Please try again.');
         }
     };
 

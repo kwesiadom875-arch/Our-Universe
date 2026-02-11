@@ -3,11 +3,13 @@ import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import { ChevronLeft, ChevronRight, Heart, HeartHandshake, User, Users, GraduationCap, FileText, Trophy, MapPin, Sparkles, BookOpen, Plus, Clock } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
+import NotificationContext from '../context/NotificationContext';
 import Layout from '../components/Layout';
 import '../styles/timetable.css';
 
 const Timetable = () => {
     const { token } = useContext(AuthContext);
+    const { addNotification } = useContext(NotificationContext);
     const [classes, setClasses] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -85,7 +87,7 @@ const Timetable = () => {
     // Submit New Class
     const onSubmit = async () => {
         if (!classData.subject || !classData.startTime || !classData.endTime) {
-            alert('Please fill in Subject and Times');
+            addNotification('warning', 'Missing Information', 'Please fill in Subject and Times');
             return;
         }
 
@@ -112,9 +114,10 @@ const Timetable = () => {
             setClasses([...classes, res.data]);
             setIsModalOpen(false);
             setClassData({ subject: '', location: '', startTime: '', endTime: '' });
+            addNotification('success', 'Class Added', `Successfully added ${newClass.subject} to your timetable.`);
         } catch (err) {
             console.error("Error adding class:", err);
-            alert("Failed to add class");
+            addNotification('error', 'Error', 'Failed to add class. Please try again.');
         }
     };
 

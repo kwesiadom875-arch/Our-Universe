@@ -2,12 +2,14 @@ import { useState, useContext } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import AuthContext from '../context/AuthContext';
+import NotificationContext from '../context/NotificationContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Plus, X, Monitor, Film } from 'lucide-react';
 import '../styles/mediasearch.css'; // We'll create this or add to index.css
 
 const MediaSearchModal = ({ isOpen, onClose, onAdd }) => {
     const { token } = useContext(AuthContext);
+    const { addNotification } = useContext(NotificationContext);
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
     const [type, setType] = useState('movie'); // 'movie' or 'tv'
@@ -40,10 +42,11 @@ const MediaSearchModal = ({ isOpen, onClose, onAdd }) => {
             };
             await axios.post(`${API_BASE_URL}/api/media/add`, payload, config);
             if (onAdd) onAdd(item);
-            onClose(); // Close after adding? Or let them add more? Let's close for now or show success.
+            onClose();
+            addNotification('success', 'Added to Library', `${item.title || item.name} added to your watched list.`);
         } catch (err) {
             console.error("Add error:", err);
-            alert("Already in your watched list!");
+            addNotification('info', 'Already Exists', "Already in your watched list!");
         }
     };
 

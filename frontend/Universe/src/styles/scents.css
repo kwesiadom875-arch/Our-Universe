@@ -133,7 +133,8 @@
 .scent-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    padding: 10px;
     transition: transform 0.5s;
 }
 
@@ -741,7 +742,9 @@
 .hero-image-card img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    padding: 20px;
+    background: white;
 }
 
 .details-info-section {

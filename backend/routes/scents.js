@@ -22,7 +22,21 @@ router.get('/', auth, async (req, res) => {
 router.post('/', auth, async (req, res) => {
     const { name, brand, type, notes, rating, image, season, wishlist, description, accords, longevity, sillage, pyramid, journals } = req.body;
 
+    // Debug: Log incoming pyramid and accords data
+    console.log("📥 Saving scent:", name);
+    console.log("  Pyramid received:", JSON.stringify(pyramid));
+    console.log("  Accords received:", JSON.stringify(accords));
+
     try {
+        // Convert accords plain object to a Map-compatible structure
+        let accordsMap = {};
+        if (accords && typeof accords === 'object') {
+            // If it's already a plain object with string keys and number values, it works with Mongoose Map
+            Object.entries(accords).forEach(([key, val]) => {
+                accordsMap[key] = typeof val === 'number' ? val : parseInt(val) || 0;
+            });
+        }
+
         const newScent = new Scent({
             user: req.user.id,
             name,
@@ -35,14 +49,15 @@ router.post('/', auth, async (req, res) => {
             wishlist: wishlist || false,
             myCollection: !wishlist,
             description,
-            accords,
+            accords: accordsMap,
             longevity,
             sillage,
-            pyramid,
+            pyramid: pyramid || { top: [], middle: [], base: [] },
             journals
         });
 
         const scent = await newScent.save();
+        console.log("  ✅ Saved pyramid:", JSON.stringify(scent.pyramid));
         res.json(scent);
     } catch (err) {
         console.error(err.message);
@@ -181,34 +196,44 @@ router.post('/scrape', auth, async (req, res) => {
         if (titleText.includes("for women") && !titleText.includes("for men")) gender = "Female";
         if (titleText.includes("for men") && !titleText.includes("for women")) gender = "Male";
 
-        // Pyramid Extraction (exact same logic as PAFUM-D-ELITE)
+        // Pyramid Extraction (Tailwind-based)
         let pyramidData = { top: [], middle: [], base: [] };
-        const pyramidDivs = $('div[style*="flex-flow: wrap"][style*="justify-content: center"]');
+        const pyramidContainers = $('.pyramid-level-container');
+        const levels = ['top', 'middle', 'base'];
 
-        if (pyramidDivs.length >= 3) {
-            const getNotesFromDiv = (div) => {
-                const notesArr = [];
-                $(div).find('div').each((i, el) => {
-                    const text = $(el).text().trim();
-                    if (text) notesArr.push(text);
-                });
-                return [...new Set(notesArr)].filter(n => n.length > 1);
-            };
-
-            pyramidData.top = getNotesFromDiv(pyramidDivs.eq(0));
-            pyramidData.middle = getNotesFromDiv(pyramidDivs.eq(1));
-            pyramidData.base = getNotesFromDiv(pyramidDivs.eq(2));
+        if (pyramidContainers.length > 0) {
+            pyramidContainers.each((i, container) => {
+                if (i < 3) {
+                    const notesArr = [];
+                    $(container).find('span, a, div').each((j, el) => {
+                        const text = $(el).text().trim();
+                        // Filter out empty, very short, or container text
+                        if (text && text.length > 1 && text.length < 50 && !text.includes('\n')) {
+                            notesArr.push(text);
+                        }
+                    });
+                    const uniqueNotes = [...new Set(notesArr)].filter(n => n.length > 1);
+                    pyramidData[levels[i]] = uniqueNotes;
+                }
+            });
         }
 
-        // Accords Extraction
+        // Accords Extraction (Tailwind/Inline Style based)
         let accords = {};
-        $('.accord-bar').each((i, el) => {
-            const name = $(el).text().trim();
-            // Estimate percentage from bar width if available
+        $('div[style*="width"][style*="background"]').each((i, el) => {
             const style = $(el).attr('style') || '';
-            const widthMatch = style.match(/width:\s*(\d+)/);
-            const width = widthMatch ? parseInt(widthMatch[1]) : (100 - (i * 15));
-            if (name) accords[name] = Math.min(width, 100);
+            const text = $(el).text().trim();
+            const widthMatch = style.match(/width:\s*([\d.]+)(%|px)/);
+
+            if (widthMatch && text && text.length > 1 && text.length < 40 && !text.includes('\n')) {
+                // Parse width as percentage
+                let width = parseFloat(widthMatch[1]);
+                if (widthMatch[2] === 'px') width = Math.min((width / 300) * 100, 100); // Rough estimate if px
+
+                // Capitalize first letter for frontend color mapping
+                const finalName = text.charAt(0).toUpperCase() + text.slice(1);
+                accords[finalName] = Math.min(Math.round(width), 100);
+            }
         });
 
         // Brand from URL (reliable, same as PAFUM-D-ELITE)
@@ -292,6 +317,9 @@ router.post('/scrape', auth, async (req, res) => {
         };
 
         console.log("✅ Scrape successful:", data.name, "by", data.brand);
+        console.log("  📊 Pyramid:", JSON.stringify(pyramidData));
+        console.log("  🎨 Accords:", JSON.stringify(accords));
+        console.log("  🖼️ Image:", image);
         res.json(data);
 
     } catch (error) {

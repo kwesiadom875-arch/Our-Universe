@@ -238,4 +238,10 @@
         padding-top: 4.5rem;
         /* Space for hamburger */
     }
+
+    /* Notification Bell Adjustment for Mobile */
+    .notification-wrapper {
+        top: 1rem !important;
+        right: 1rem !important;
+    }
 }
