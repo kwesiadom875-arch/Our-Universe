@@ -77,7 +77,7 @@ const Login = () => {
 
                     {/* Error Display */}
                     {formError && (
-                        <div className="auth-error">
+                        <div className="auth-error" role="alert" aria-live="polite">
                             {formError}
                         </div>
                     )}
@@ -85,10 +85,11 @@ const Login = () => {
                     <form onSubmit={onSubmit}>
                         {/* Email */}
                         <div className="form-group">
-                            <label className="field-label">Universal Email</label>
+                            <label className="field-label" htmlFor="email">Universal Email</label>
                             <div className="input-with-icon">
                                 <span className="input-icon"><Mail size={16} /></span>
                                 <input
+                                    id="email"
                                     type="email"
                                     name="email"
                                     value={email}
@@ -101,10 +102,11 @@ const Login = () => {
 
                         {/* Password */}
                         <div className="form-group">
-                            <label className="field-label">Access Key</label>
+                            <label className="field-label" htmlFor="password">Access Key</label>
                             <div className="input-with-icon">
                                 <span className="input-icon"><Lock size={16} /></span>
                                 <input
+                                    id="password"
                                     type={showPassword ? 'text' : 'password'}
                                     name="password"
                                     value={password}
@@ -116,6 +118,7 @@ const Login = () => {
                                     type="button"
                                     className="password-toggle"
                                     onClick={() => setShowPassword(!showPassword)}
+                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                                 >
                                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
