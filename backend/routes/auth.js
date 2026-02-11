@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
 const auth = require('../middleware/auth');
+const { authLimiter } = require('../middleware/rateLimiter');
 const User = require('../models/User');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -28,7 +29,7 @@ const createToken = (userId) => {
 // @route   POST api/auth/register
 // @desc    Register user (Create Universe - Flow 1)
 // @access  Public
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
     const { username, email, password, profilePicture } = req.body;
 
     try {
@@ -76,7 +77,7 @@ router.post('/register', async (req, res) => {
 // @route   POST api/auth/register-with-code
 // @desc    Register user with invite code (Join Universe - Flow 2)
 // @access  Public
-router.post('/register-with-code', async (req, res) => {
+router.post('/register-with-code', authLimiter, async (req, res) => {
     const { username, email, password, profilePicture, inviteCode } = req.body;
 
     try {
@@ -138,7 +139,7 @@ router.post('/register-with-code', async (req, res) => {
 // @route   POST api/auth/google
 // @desc    Google Sign-In (register or login)
 // @access  Public
-router.post('/google', async (req, res) => {
+router.post('/google', authLimiter, async (req, res) => {
     const { credential, inviteCode: joinCode } = req.body;
 
     try {
@@ -244,7 +245,7 @@ router.post('/google', async (req, res) => {
 // @route   POST api/auth/login
 // @desc    Authenticate user & get token
 // @access  Public
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     try {

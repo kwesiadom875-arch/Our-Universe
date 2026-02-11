@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs');
+const { apiLimiter } = require('./middleware/rateLimiter');
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+app.set('trust proxy', 1); // Trust first proxy
 app.use(cors());
 app.use(express.json());
 
@@ -34,16 +36,16 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/our-univers
 
 // Define Routes
 // Define Routes
-app.use('/api/auth', require('./routes/auth')); // Flow 1 & 2
-app.use('/api/memories', require('./routes/memories')); // Check if this exists? user didn't show it but it was in previous verify.
+app.use('/api/auth', apiLimiter, require('./routes/auth')); // Flow 1 & 2
+app.use('/api/memories', apiLimiter, require('./routes/memories')); // Check if this exists? user didn't show it but it was in previous verify.
 // Actually, looking at file list, memories.js exists in routes.
-app.use('/api/events', require('./routes/events'));
-app.use('/api/timetable', require('./routes/timetable'));
-app.use('/api/movies', require('./routes/movies'));
-app.use('/api/media', require('./routes/media'));
-app.use('/api/scents', require('./routes/scents'));
-app.use('/api/library', require('./routes/library'));
-app.use('/api/upload', require('./routes/upload'));
+app.use('/api/events', apiLimiter, require('./routes/events'));
+app.use('/api/timetable', apiLimiter, require('./routes/timetable'));
+app.use('/api/movies', apiLimiter, require('./routes/movies'));
+app.use('/api/media', apiLimiter, require('./routes/media'));
+app.use('/api/scents', apiLimiter, require('./routes/scents'));
+app.use('/api/library', apiLimiter, require('./routes/library'));
+app.use('/api/upload', apiLimiter, require('./routes/upload'));
 
 // The API Route
 app.get('/api/data', (req, res) => {
