@@ -1,19 +1,19 @@
 const mongoose = require('mongoose');
 
-const SwipeSchema = new mongoose.Schema({
+const MediaItemSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
     tmdbId: {
-        type: String,
+        type: Number,
         required: true
     },
     mediaType: {
         type: String,
         enum: ['movie', 'tv'],
-        default: 'movie'
+        required: true
     },
     title: {
         type: String,
@@ -22,15 +22,19 @@ const SwipeSchema = new mongoose.Schema({
     posterPath: {
         type: String
     },
-    action: {
-        type: String, // 'like' or 'pass'
-        required: true,
-        enum: ['like', 'pass']
+    rating: {
+        type: Number,
+        min: 0,
+        max: 10,
+        default: 0
     },
-    timestamp: {
+    dateAdded: {
         type: Date,
         default: Date.now
     }
 });
 
-module.exports = mongoose.model('Swipe', SwipeSchema);
+// Composite index to prevent duplicates per user
+MediaItemSchema.index({ user: 1, tmdbId: 1, mediaType: 1 }, { unique: true });
+
+module.exports = mongoose.model('MediaItem', MediaItemSchema);

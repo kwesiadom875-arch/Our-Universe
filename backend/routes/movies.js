@@ -6,13 +6,44 @@ const User = require('../models/User');
 const axios = require('axios'); // For server-side fetching
 
 // @route   GET api/movies/popular
-// @desc    Fetch popular movies from TMDB (via backend proxy)
+// @desc    Fetch popular movies from TMDB (via backend proxy) and filter out seen ones
 // @access  Private
 router.get('/popular', auth, async (req, res) => {
     try {
         const API_KEY = '9030d6fc7634373348182586f61ef12d';
-        const tmdbRes = await axios.get(`https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=1`);
-        res.json(tmdbRes.data);
+
+        // 1. Get IDs of movies the user has already swiped on
+        const userSwipes = await Swipe.find({ user: req.user.id }).select('tmdbId');
+        const seenMovieIds = new Set(userSwipes.map(s => s.tmdbId));
+
+        let candidateMovies = [];
+        let page = 1;
+        const MAX_PAGES_TO_FETCH = 5; // Safety limit to prevent infinite loops
+        const REQUIRED_COUNT = 20;
+
+        // Loop until we have enough movies or hit the safety limit
+        // We start from a random page to give variety? 
+        // Or better: store the "last fetched page" in User model?
+        // For now, let's just cycle through pages 1 to MAX_PAGES_TO_FETCH
+
+        // Randomize starting page slightly to avoid always showing same movies to new users?
+        // Let's stick to sequential for consistency, but maybe start at page 1.
+
+        while (candidateMovies.length < REQUIRED_COUNT && page <= MAX_PAGES_TO_FETCH) {
+            const tmdbRes = await axios.get(`https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=${page}`);
+            const results = tmdbRes.data.results;
+
+            // Filter out seen movies
+            const newCandidates = results.filter(movie => !seenMovieIds.has(movie.id));
+
+            // Add unique new candidates
+            candidateMovies = [...candidateMovies, ...newCandidates];
+
+            page++;
+        }
+
+        // Limit to 20
+        res.json({ results: candidateMovies.slice(0, 20) });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

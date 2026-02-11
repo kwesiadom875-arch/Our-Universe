@@ -7,7 +7,10 @@ import Dashboard from './pages/Dashboard';
 import Timetable from './pages/Timetable';
 import Calendar from './pages/Calendar';
 import MovieMatcher from './pages/MovieMatcher';
+import MediaLibrary from './pages/MediaLibrary';
 import BookLibrary from './pages/BookLibrary';
+import Scents from './pages/Scents';
+import ScentDetails from './pages/ScentDetails';
 import Scrapbook from './pages/Scrapbook';
 import PrivateRoute from './components/PrivateRoute';
 import './App.css';
@@ -63,6 +66,30 @@ function App() {
                 element={
                   <PrivateRoute>
                     <BookLibrary />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/medialibrary"
+                element={
+                  <PrivateRoute>
+                    <MediaLibrary />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/scents"
+                element={
+                  <PrivateRoute>
+                    <Scents />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/scents/:id"
+                element={
+                  <PrivateRoute>
+                    <ScentDetails />
                   </PrivateRoute>
                 }
               />

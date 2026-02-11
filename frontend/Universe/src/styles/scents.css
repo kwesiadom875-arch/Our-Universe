@@ -1,0 +1,993 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap');
+
+.scents-page {
+    min-height: 100vh;
+    background-color: #FAF9F6;
+    font-family: 'Outfit', sans-serif;
+    color: #1F1B24;
+    padding-bottom: 150px;
+    /* Space for stats bar */
+}
+
+/* Header */
+.scents-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 4rem;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.scent-of-day-btn {
+    background: #F59E0B;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    transition: transform 0.2s;
+}
+
+.scent-of-day-btn:hover {
+    transform: translateY(-2px);
+}
+
+.scents-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title-area h1 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+.title-area h1 span {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: #F59E0B;
+    font-weight: 600;
+}
+
+/* Tabs */
+.scent-tabs {
+    background: #F0EEE9;
+    padding: 0.4rem;
+    border-radius: 40px;
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 4rem;
+}
+
+.scent-tabs button {
+    background: transparent;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 30px;
+    font-family: 'Outfit', sans-serif;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.scent-tabs button.active {
+    background: #F59E0B;
+    color: white;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+}
+
+/* Grid */
+.scents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    width: 100%;
+}
+
+.scent-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+    /* Fixed height for consistency */
+}
+
+.scent-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.scent-image-container {
+    height: 60%;
+    width: 100%;
+    background: #F0F0F0;
+    overflow: hidden;
+}
+
+.scent-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+}
+
+.scent-card:hover .scent-image {
+    transform: scale(1.05);
+}
+
+.scent-info {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.scent-brand {
+    color: #F59E0B;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.scent-info h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    margin: 0 0 1rem 0;
+    color: #1F1B24;
+}
+
+.scent-notes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.note-pill {
+    background: #F9F9F9;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    color: #666;
+    border: 1px solid #eee;
+}
+
+/* Add Card */
+.add-card {
+    border: 2px dashed #D4D4D4;
+    border-radius: 20px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #888;
+    transition: all 0.3s;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.add-card:hover {
+    border-color: #F59E0B;
+    color: #F59E0B;
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.add-icon {
+    background: rgba(0, 0, 0, 0.05);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    transition: all 0.3s;
+}
+
+.add-card:hover .add-icon {
+    background: rgba(245, 158, 11, 0.2);
+    color: #F59E0B;
+}
+
+
+/* Stats Bar */
+.stats-bar-container {
+    position: fixed;
+    bottom: 40px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.stats-bar {
+    pointer-events: auto;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 1rem 3rem;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.stat-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #999;
+    font-weight: 700;
+}
+
+.stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: #1F1B24;
+    font-weight: 600;
+}
+
+.stat-value.highlight {
+    color: #F59E0B;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 30px;
+    background: #EEE;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .scents-header {
+        padding: 1.5rem;
+    }
+
+    .stats-bar {
+        padding: 1rem;
+        width: 90%;
+        gap: 1rem;
+        flex-direction: row;
+        justify-content: space-around;
+        border-radius: 20px;
+    }
+
+    .stat-label {
+        font-size: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1rem;
+    }
+
+    .scents-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+
+    .scent-card,
+    .add-card {
+        height: 300px;
+    }
+}
+
+/* Add Scent Modal */
+.add-scent-modal {
+    background: #FAF9F6;
+    width: 600px;
+    max-width: 90%;
+    border-radius: 30px;
+    padding: 2rem;
+    position: relative;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+    font-family: 'Outfit', sans-serif;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.05);
+    transition: background 0.2s;
+}
+
+.modal-close-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.modal-header-center {
+    text-align: center;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.magic-wand-icon {
+    background: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    box-shadow: 0 10px 20px rgba(245, 158, 11, 0.1);
+}
+
+.modal-header-center h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    color: #1F1B24;
+}
+
+.modal-header-center h2 span {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: #F59E0B;
+}
+
+.modal-header-center p {
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.modal-tabs {
+    background: #F0EEE9;
+    align-self: center;
+    padding: 5px;
+    border-radius: 40px;
+    display: flex;
+    gap: 5px;
+    margin-bottom: 2rem;
+}
+
+.modal-tabs button {
+    background: transparent;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.modal-tabs button.active {
+    background: white;
+    color: #1F1B24;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Magic Tab */
+.magic-tab-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.magic-tab-content label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #999;
+    text-transform: uppercase;
+}
+
+.magic-input-group {
+    display: flex;
+    gap: 1rem;
+    background: white;
+    padding: 5px;
+    border-radius: 15px;
+    border: 1px solid #E5E5E5;
+}
+
+.magic-input-group input {
+    flex: 1;
+    border: none;
+    padding: 0.8rem 1rem;
+    font-family: 'Outfit', sans-serif;
+    outline: none;
+    background: transparent;
+}
+
+.magic-fetch-btn {
+    background: #D4AF37;
+    /* Original Gold or stick to Orange */
+    background: #F59E0B;
+    color: white;
+    border: none;
+    padding: 0 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.2s;
+}
+
+.magic-fetch-btn:hover {
+    background: #D97706;
+}
+
+.magic-hint {
+    background: #FDF6E3;
+    /* Light beige/orange tint */
+    border: 1px solid #FAE0B5;
+    padding: 1rem;
+    border-radius: 15px;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-top: 1rem;
+}
+
+.hint-icon {
+    color: #F59E0B;
+    background: white;
+    padding: 5px;
+    border-radius: 50%;
+    display: flex;
+}
+
+.magic-hint p {
+    font-size: 0.9rem;
+    color: #5D4037;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Fetched Preview */
+.fetched-preview {
+    margin-top: 1.5rem;
+    background: white;
+    border-radius: 20px;
+    padding: 1rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.fetched-preview img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.preview-info h4 {
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+}
+
+.preview-info span {
+    font-size: 0.9rem;
+    color: #F59E0B;
+    font-weight: 600;
+}
+
+.fetched-stats {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 0.2rem;
+}
+
+.confirm-add-btn {
+    margin-left: auto;
+    background: #1F1B24;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Manual Form */
+.manual-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #666;
+}
+
+.form-group input {
+    padding: 0.8rem;
+    border: 1px solid #E5E5E5;
+    border-radius: 10px;
+    font-family: 'Outfit', sans-serif;
+    outline: none;
+}
+
+.manual-submit-btn {
+    background: #1F1B24;
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.modal-footer-feature {
+    text-align: right;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #D4AF37;
+    margin-top: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Journal Form */
+.journals-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.add-journal-btn {
+    background: #1F1B24;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.2s;
+}
+
+.add-journal-btn:hover {
+    background: #333;
+}
+
+.journal-form {
+    background: #FFF9F0;
+    padding: 1.5rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    border: 1px solid #FCEFD5;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: hidden;
+}
+
+.journal-form textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 1rem;
+    border: 1px solid #E5E5E5;
+    border-radius: 15px;
+    font-family: 'Outfit', sans-serif;
+    outline: none;
+    resize: vertical;
+}
+
+.journal-form button {
+    align-self: flex-end;
+    background: #F59E0B;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.no-journals {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 2rem;
+    background: white;
+    border-radius: 20px;
+}
+
+/* Detail Page Styles */
+.scent-details-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.details-header-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.back-btn {
+    background: #F59E0B;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
+    transition: transform 0.2s;
+}
+
+.back-btn:hover {
+    transform: scale(1.1);
+}
+
+.nav-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.icon-btn {
+    background: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.2s;
+}
+
+.icon-btn:hover {
+    color: #F59E0B;
+    background: #FFF9F0;
+}
+
+.details-content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-bottom: 4rem;
+}
+
+.hero-image-card {
+    width: 100%;
+    aspect-ratio: 3/4;
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.hero-image-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.details-info-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.scent-brand-lg {
+    color: #F59E0B;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.scent-title-lg {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    line-height: 1;
+    color: #1F1B24;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+.scent-title-lg span {
+    font-style: italic;
+    color: #D35400;
+    /* Darker accent for Jasmine text usually */
+}
+
+.scent-description {
+    line-height: 1.6;
+    color: #666;
+    margin-bottom: 2rem;
+    font-size: 1.05rem;
+}
+
+.scent-stats-grid {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    border-top: 1px solid #EEE;
+    border-bottom: 1px solid #EEE;
+    padding: 1.5rem 0;
+}
+
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.stat-box .stat-label {
+    font-size: 0.65rem;
+    color: #999;
+    font-weight: 700;
+}
+
+.stat-box .stat-val {
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Accords */
+.accords-section h3,
+.pyramid-section h3,
+.section-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.accord-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+}
+
+.accord-name {
+    width: 60px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #888;
+}
+
+.progress-container {
+    flex: 1;
+    height: 12px;
+    background: #F0F0F0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 6px;
+}
+
+.accord-pct {
+    width: 30px;
+    font-size: 0.8rem;
+    color: #999;
+    text-align: right;
+}
+
+/* Pyramid */
+.pyramid-section {
+    margin-top: 3rem;
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+}
+
+.pyramid-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.pyramid-level {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.level-icon {
+    background: #FFF9F0;
+    padding: 10px;
+    border-radius: 50%;
+    position: relative;
+    z-index: 2;
+}
+
+.pyramid-connector {
+    width: 2px;
+    height: 30px;
+    background: #FCEFD5;
+    /* Connector line color */
+    margin-left: 17px;
+    margin-top: -5px;
+    margin-bottom: -5px;
+}
+
+.level-notes .level-title {
+    font-size: 0.65rem;
+    color: #F59E0B;
+    font-weight: 700;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 0.3rem;
+}
+
+.level-notes p {
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: #444;
+}
+
+/* Journals */
+.journals-section {
+    margin-top: 2rem;
+}
+
+.journals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.journal-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.journal-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.journal-header img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #F0F0F0;
+}
+
+.journal-header h4 {
+    margin: 0;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+}
+
+.journal-header span {
+    font-size: 0.65rem;
+    color: #999;
+    letter-spacing: 1px;
+}
+
+.journal-text {
+    font-family: 'Playfair Display', serif;
+    /* Or handwriting font if imported */
+    font-style: italic;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 1.5rem;
+}
+
+.font-handwriting {
+    font-family: 'Cursive', 'Playfair Display', serif;
+    /* Fallback */
+}
+
+.journal-date {
+    display: block;
+    text-align: right;
+    font-size: 0.75rem;
+    color: #BBB;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .details-content-wrapper {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .journals-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .scent-title-lg {
+        font-size: 3rem;
+    }
+}
