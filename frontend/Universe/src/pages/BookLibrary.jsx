@@ -4,11 +4,13 @@ import axios from 'axios';
 import {
     Bell, Moon, Settings, AlertTriangle, Edit2, Quote, Heart,
     MapPin, Search, X, Plus, Sparkles, User, Trash2, BookOpen,
-    FileText, Users, ChevronDown, MessageSquare, Check
+    FileText, Users, ChevronDown, MessageSquare, Check, UploadCloud,
+    Star, LayoutGrid
 } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import NotificationContext from '../context/NotificationContext';
 import Layout from '../components/Layout';
+import EpubReader from '../components/EpubReader'; // NEW: Import EpubReader
 import API_BASE_URL from '../config/api';
 import '../styles/library.css';
 
@@ -154,6 +156,18 @@ const BookLibrary = () => {
     const [selectedBook, setSelectedBook] = useState(null);
     const [activeTab, setActiveTab] = useState('progress');
     const [tbrFilter, setTbrFilter] = useState('Ours');
+    const [viewMode, setViewMode] = useState('shelf'); // 'shelf' | 'constellation'
+    const [showEpubReader, setShowEpubReader] = useState(false); // NEW: Reader state
+    const fileInputRef = useRef(null); // NEW: For EPUB upload
+
+    // Shelf Decor State (Persisted in local storage for MVP)
+    const [decorItems, setDecorItems] = useState(() => {
+        const saved = localStorage.getItem('shelfDecor');
+        return saved ? JSON.parse(saved) : [
+            { id: 1, type: 'plant', x: 10, y: 0 },
+            { id: 2, type: 'candle', x: 80, y: 0 }
+        ];
+    });
 
     // Character states
     const [showAddChar, setShowAddChar] = useState(false);
@@ -321,6 +335,7 @@ const BookLibrary = () => {
         } catch (err) {
             console.error(err);
         }
+        setShowAddNote(false);
     };
 
     const deleteNote = async (noteId) => {
@@ -331,6 +346,72 @@ const BookLibrary = () => {
         } catch (err) {
             console.error(err);
         }
+    };
+
+    // ─── EPUB Upload & Read ───
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            // 1. Upload EPUB
+            const uploadRes = await axios.post(`${API_BASE_URL}/api/epub/upload`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data', 'x-auth-token': token }
+            });
+
+            // 2. Create Book Entry from EPUB (simplified metadata for now)
+            const newBook = {
+                googleBookId: 'EPUB-' + Date.now(),
+                title: file.name.replace('.epub', ''),
+                authors: ['Unknown Author'],
+                thumbnail: 'https://via.placeholder.com/128x190?text=EPUB', // Placeholder or extract later
+                pageCount: 100, // Default until parsed
+                description: 'Uploaded EPUB',
+                status: 'TBR',
+                fileUrl: uploadRes.data.url,
+                format: 'ebook'
+            };
+
+            const bookRes = await axios.post(API, newBook, config);
+            setLibrary(prev => [...prev, bookRes.data]);
+            addNotification('success', 'EPUB Added', 'Book uploaded successfully!');
+        } catch (err) {
+            console.error(err);
+            addNotification('error', 'Upload Failed', 'Could not upload EPUB.');
+        }
+    };
+
+    const handleOpenReader = () => {
+        if (selectedBook?.fileUrl) {
+            setShowEpubReader(true);
+        } else {
+            addNotification('info', 'No EPUB', 'This book does not have an EPUB file attached.');
+        }
+    };
+
+    const handleUpdateReadingProgress = (location) => {
+        // Here we could save the CFI (location) to the backend
+        // For MVP, we just log it or maybe map it to percentage roughly
+        console.log('Reading location:', location);
+    };
+
+    // ─── Decor Drag Handler ───
+    const handleDecorDragEnd = (id, info) => {
+        setDecorItems(prev => {
+            const updated = prev.map(item => {
+                if (item.id === id) {
+                    // Update X position based on drag delta (simplified)
+                    // In a real app, we'd calculate % based on container width
+                    return { ...item, x: item.x + (info.offset.x * 0.1) };
+                }
+                return item;
+            });
+            localStorage.setItem('shelfDecor', JSON.stringify(updated));
+            return updated;
+        });
     };
 
     // ─── Mention handling in textarea ───
@@ -389,6 +470,12 @@ const BookLibrary = () => {
     const readingBooks = library.filter(b => b.status === 'Reading');
     const tbrBooks = library.filter(b => b.status === 'TBR');
     const finishedBooks = library.filter(b => b.status === 'Finished');
+
+    // Aggregated quotes for Quote Wall
+    const allQuotes = library.flatMap(b => (b.notes || [])
+        .filter(n => n.type === 'quote')
+        .map(n => ({ ...n, bookTitle: b.title, bookAuthor: b.authors[0] }))
+    );
 
     // ═══════════════════════════════════════════════════════════════════
     // RENDER
@@ -603,7 +690,6 @@ const BookLibrary = () => {
                                     </motion.div>
                                 ))}
 
-                                {/* Add Book Card */}
                                 <motion.button
                                     className="tbr-add-card"
                                     variants={bookItem}
@@ -616,8 +702,56 @@ const BookLibrary = () => {
                                     <span className="tbr-add-icon">+</span>
                                     <span>Add Book</span>
                                 </motion.button>
+
+                                {/* Upload EPUB Button */}
+                                <motion.button
+                                    className="tbr-add-card"
+                                    variants={bookItem}
+                                    whileHover={{ scale: 1.05, transition: { duration: 0.2 }, borderColor: '#8B5CF6', color: '#8B5CF6' }}
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    <span className="tbr-add-icon"><UploadCloud size={24} /></span>
+                                    <span>Upload EPUB</span>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleFileUpload}
+                                        accept=".epub"
+                                        style={{ display: 'none' }}
+                                    />
+                                </motion.button>
                             </motion.div>
                         </motion.div>
+
+                        {/* ── Currently Reading Shelf DECOR (Idea 1) ────────── */}
+                        {/* Render decor items only on the first shelf for now */}
+                        {decorItems.map(item => (
+                            <motion.div
+                                key={item.id}
+                                className={`shelf-decor-item decor-${item.type}`}
+                                drag
+                                dragMomentum={false}
+                                onDragEnd={(e, info) => handleDecorDragEnd(item.id, info)}
+                                style={{ left: `${item.x}%`, bottom: '25px' }} // Adjust bottom to sit on shelf
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                            >
+                                <img
+                                    src={`/assets/decor/${item.type}.png`} // Assuming assets exist or using placeholders
+                                    onError={(e) => e.target.style.display = 'none'} // Hide if no image
+                                    alt="decor"
+                                    className="decor-img"
+                                />
+                                { /* Placeholder visual since we might not have images yet */}
+                                <div style={{
+                                    width: item.type === 'plant' ? 40 : 20,
+                                    height: item.type === 'plant' ? 50 : 30,
+                                    background: item.type === 'plant' ? '#10B981' : '#F59E0B',
+                                    borderRadius: '4px',
+                                    opacity: 0.8
+                                }}></div>
+                            </motion.div>
+                        ))}
 
                         {/* ── Finished Section ────────────────────────────── */}
                         {finishedBooks.length > 0 && (
@@ -635,36 +769,144 @@ const BookLibrary = () => {
                                     animate="visible"
                                 >
                                     {finishedBooks.map(book => (
-                                        <motion.div
-                                            key={book._id}
-                                            className="finished-book"
-                                            variants={bookItem}
-                                            whileHover={{ scale: 1.05, y: -8, transition: { duration: 0.25 } }}
-                                            onClick={() => { setSelectedBook(book); setActiveTab('progress'); }}
-                                        >
-                                            <div className="finished-book-card">
-                                                <img
-                                                    src={book.thumbnail}
-                                                    className="finished-book-cover"
-                                                    alt={book.title}
-                                                />
-                                                <div className="finished-overlay">
-                                                    <span className="finished-book-title">{book.title}</span>
-                                                    <div className="finished-check">
-                                                        <Check size={16} />
+                                        viewMode === 'shelf' ? (
+                                            /* SHELF VIEW */
+                                            <motion.div
+                                                key={book._id}
+                                                className="finished-book"
+                                                variants={bookItem}
+                                                whileHover={{ scale: 1.05, y: -8, transition: { duration: 0.25 } }}
+                                                onClick={() => { setSelectedBook(book); setActiveTab('progress'); }}
+                                            >
+                                                <div className="finished-book-card">
+                                                    <img
+                                                        src={book.thumbnail}
+                                                        className="finished-book-cover"
+                                                        alt={book.title}
+                                                    />
+                                                    <div className="finished-overlay">
+                                                        <span className="finished-book-title">{book.title}</span>
+                                                        <div className="finished-check">
+                                                            <Check size={16} />
+                                                        </div>
+                                                        <span className="finished-label">Finished</span>
+                                                        <span className="finished-author">{book.authors?.[0]}</span>
                                                     </div>
-                                                    <span className="finished-label">Finished</span>
-                                                    <span className="finished-author">{book.authors?.[0]}</span>
                                                 </div>
-                                            </div>
-                                        </motion.div>
+                                            </motion.div>
+                                        ) : (
+                                            /* CONSTELLATION VIEW (Idea 3) */
+                                            <motion.div
+                                                key={book._id}
+                                                className="constellation-book-node"
+                                                initial={{ opacity: 0, scale: 0 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                style={{
+                                                    top: `${Math.random() * 80 + 10}%`,
+                                                    left: `${Math.random() * 80 + 10}%`
+                                                }}
+                                                onClick={() => { setSelectedBook(book); setActiveTab('progress'); }}
+                                            >
+                                                <div className="node-star">
+                                                    <Star size={12} fill="white" color="none" />
+                                                </div>
+                                                <span className="node-label">{book.title}</span>
+                                            </motion.div>
+                                        )
                                     ))}
                                 </motion.div>
+
+
+
+                                {/* Correct implementation of Idea 3: Toggle container type */}
+                                {viewMode === 'constellation' && (
+                                    <div className="constellation-universe">
+                                        {[...Array(20)].map((_, i) => (
+                                            <div key={i} className="star-bg" style={{
+                                                top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`,
+                                                animationDelay: `${Math.random() * 5}s`
+                                            }} />
+                                        ))}
+                                        {finishedBooks.map(book => (
+                                            <motion.div
+                                                key={book._id}
+                                                className="constellation-book-node"
+                                                initial={{ opacity: 0, scale: 0 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                style={{
+                                                    top: `${Math.random() * 80 + 10}%`,
+                                                    left: `${Math.random() * 80 + 10}%`
+                                                }}
+                                                onClick={() => { setSelectedBook(book); setActiveTab('progress'); }}
+                                            >
+                                                <div className="node-star">
+                                                    <Star size={12} fill="white" color="none" />
+                                                </div>
+                                                <span className="node-label">{book.title}</span>
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                )}
+
                                 <div className="shelf-ledge" />
+                            </motion.div>
+                        )}
+
+                        {/* ── View Toggle for Finished ── */}
+                        {finishedBooks.length > 0 && (
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+                                <button
+                                    className={`view-toggle-btn ${viewMode === 'shelf' ? 'active' : ''}`}
+                                    onClick={() => setViewMode('shelf')}
+                                >
+                                    <LayoutGrid size={16} /> Shelf
+                                </button>
+                                <button
+                                    className={`view-toggle-btn ${viewMode === 'constellation' ? 'active' : ''}`}
+                                    onClick={() => setViewMode('constellation')}
+                                >
+                                    <Star size={16} /> Galaxy
+                                </button>
+                            </div>
+                        )}
+
+                        {/* ── Global Quote Wall (Idea 5) ──────────────────── */}
+                        {allQuotes.length > 0 && (
+                            <motion.div
+                                className="quote-wall-section"
+                                variants={fadeUp}
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: true }}
+                            >
+                                <div className="quote-grid">
+                                    {allQuotes.map((quote, i) => (
+                                        <div key={i} className="quote-brick">
+                                            <div className="quote-text">"{quote.content}"</div>
+                                            <div className="quote-source">
+                                                — {quote.bookTitle}
+                                            </div>
+                                            <div className="quote-actions">
+                                                <button className="quote-btn-icon"><Heart size={14} /></button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </motion.div>
                         )}
                     </>
                 )}
+
+                {/* ── EPUB Reader Modal ───────────────────────────────────── */}
+                {showEpubReader && selectedBook?.fileUrl && (
+                    <EpubReader
+                        url={selectedBook.fileUrl}
+                        initialLocation={null} // Or use stored progress
+                        onClose={() => setShowEpubReader(false)}
+                        onUpdateProgress={handleUpdateReadingProgress}
+                    />
+                )}
+
 
                 {/* ═══════════════════════════════════════════════════════════ */}
                 {/* DETAIL MODAL                                              */}
@@ -770,6 +1012,24 @@ const BookLibrary = () => {
                                                         Total {selectedBook.pageCount} <Edit2 size={14} />
                                                     </span>
                                                 </div>
+
+                                                {/* Start Reading Button (EPUB) */}
+                                                {selectedBook.fileUrl && (
+                                                    <button
+                                                        style={{
+                                                            width: '100%', marginTop: '1.5rem',
+                                                            padding: '0.8rem', borderRadius: '12px',
+                                                            background: 'white', color: '#E8733A',
+                                                            border: 'none', fontWeight: 'bold',
+                                                            cursor: 'pointer', display: 'flex',
+                                                            alignItems: 'center', justifyContent: 'center',
+                                                            gap: '0.5rem'
+                                                        }}
+                                                        onClick={handleOpenReader}
+                                                    >
+                                                        <BookOpen size={18} /> Read eBook
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     )}
@@ -1004,8 +1264,8 @@ const BookLibrary = () => {
                     )}
                 </AnimatePresence>
 
-            </div>
-        </Layout>
+            </div >
+        </Layout >
     );
 };
 
