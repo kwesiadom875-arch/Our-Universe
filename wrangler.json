@@ -1,6 +1,5 @@
 {
     "name": "our-universe-frontend",
-    "main": "frontend/Universe/dist/index.html",
     "compatibility_date": "2024-11-01",
     "assets": {
         "directory": "frontend/Universe/dist",
