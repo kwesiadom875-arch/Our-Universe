@@ -349,7 +349,7 @@ const Register = () => {
 
                     {/* Error Display */}
                     {formError && (
-                        <div className="auth-error">
+                        <div className="auth-error" role="alert" aria-live="polite">
                             {formError}
                         </div>
                     )}
@@ -358,10 +358,11 @@ const Register = () => {
                     {activeTab === 'join' && (
                         <div className="invite-code-section">
                             <div className="form-group">
-                                <label className="field-label">Universe Code</label>
+                                <label className="field-label" htmlFor="inviteCode">Universe Code</label>
                                 <div className="input-with-icon">
                                     <span className="input-icon"><Star size={16} /></span>
                                     <input
+                                        id="inviteCode"
                                         type="text"
                                         name="inviteCode"
                                         value={inviteCode}
@@ -378,10 +379,11 @@ const Register = () => {
                     <form onSubmit={activeTab === 'create' ? onCreateSubmit : onJoinSubmit}>
                         {/* Username */}
                         <div className="form-group">
-                            <label className="field-label">Stellar Name</label>
+                            <label className="field-label" htmlFor="username">Stellar Name</label>
                             <div className="input-with-icon">
                                 <span className="input-icon"><User size={16} /></span>
                                 <input
+                                    id="username"
                                     type="text"
                                     name="username"
                                     value={username}
@@ -394,10 +396,11 @@ const Register = () => {
 
                         {/* Email */}
                         <div className="form-group">
-                            <label className="field-label">Universal Email</label>
+                            <label className="field-label" htmlFor="email">Universal Email</label>
                             <div className="input-with-icon">
                                 <span className="input-icon"><Mail size={16} /></span>
                                 <input
+                                    id="email"
                                     type="email"
                                     name="email"
                                     value={email}
@@ -411,7 +414,7 @@ const Register = () => {
                         {/* Password */}
                         <div className="form-group">
                             <div className="field-label-row">
-                                <label className="field-label">Access Key</label>
+                                <label className="field-label" htmlFor="password">Access Key</label>
                                 {password && (
                                     <span className="strength-label" style={{ color: strength.color }}>
                                         {strength.label}
@@ -421,6 +424,7 @@ const Register = () => {
                             <div className="input-with-icon">
                                 <span className="input-icon"><Lock size={16} /></span>
                                 <input
+                                    id="password"
                                     type={showPassword ? 'text' : 'password'}
                                     name="password"
                                     value={password}
@@ -432,6 +436,7 @@ const Register = () => {
                                     type="button"
                                     className="password-toggle"
                                     onClick={() => setShowPassword(!showPassword)}
+                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                                 >
                                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
@@ -451,10 +456,11 @@ const Register = () => {
 
                         {/* Confirm Password */}
                         <div className="form-group">
-                            <label className="field-label">Confirm Access Key</label>
+                            <label className="field-label" htmlFor="confirmPassword">Confirm Access Key</label>
                             <div className="input-with-icon">
                                 <span className="input-icon"><Lock size={16} /></span>
                                 <input
+                                    id="confirmPassword"
                                     type={showPassword ? 'text' : 'password'}
                                     name="confirmPassword"
                                     value={confirmPassword}
