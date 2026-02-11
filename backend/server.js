@@ -54,21 +54,6 @@ app.get('/api/data', (req, res) => {
 const frontendBuildPath = path.join(__dirname, '..', 'frontend', 'Universe', 'dist');
 const indexHtmlPath = path.join(frontendBuildPath, 'index.html');
 
-// DEBUG: Log directory contents to verify path on server
-console.log('--- DEBUG: Checking Frontend Build Path ---');
-console.log('Seeking:', frontendBuildPath);
-const universePath = path.join(__dirname, '..', 'frontend', 'Universe');
-if (fs.existsSync(universePath)) {
-    console.log(`Contents of ${universePath}:`, fs.readdirSync(universePath));
-    if (fs.existsSync(frontendBuildPath)) {
-        console.log(`Contents of ${frontendBuildPath}:`, fs.readdirSync(frontendBuildPath));
-    } else {
-        console.log('dist/ folder is MISSING inside Universe/');
-    }
-} else {
-    console.log('Universe/ folder is MISSING!');
-}
-console.log('-------------------------------------------');
 
 if (fs.existsSync(frontendBuildPath)) {
     app.use(express.static(frontendBuildPath));
