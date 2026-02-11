@@ -10,7 +10,7 @@ const axios = require('axios'); // For server-side fetching
 // @access  Private
 router.get('/popular', auth, async (req, res) => {
     try {
-        const API_KEY = '9030d6fc7634373348182586f61ef12d';
+        const API_KEY = process.env.TMDB_API_KEY;
 
         // 1. Get IDs of movies the user has already swiped on
         const userSwipes = await Swipe.find({ user: req.user.id }).select('tmdbId');
