@@ -3,7 +3,6 @@
     "compatibility_date": "2024-11-01",
     "assets": {
         "directory": "frontend/Universe/dist",
-        "binding": "ASSETS"
     },
     "observability": {
         "enabled": true
