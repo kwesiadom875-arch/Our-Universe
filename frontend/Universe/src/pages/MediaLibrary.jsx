@@ -90,6 +90,7 @@ const MediaLibrary = () => {
                             placeholder="Search our collection..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
+                            aria-label="Search collection"
                         />
                     </div>
 
@@ -188,7 +189,7 @@ const MediaLibrary = () => {
 
                         <div className="bar-actions">
                             {/* Placeholder icons for other actions */}
-                            <button className="icon-btn"><Plus size={20} /></button>
+                            <button className="icon-btn" aria-label="Add new movie"><Plus size={20} /></button>
                         </div>
                     </div>
                 </div>

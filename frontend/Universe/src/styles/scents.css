@@ -333,6 +333,7 @@
     border-radius: 50%;
     background: rgba(0, 0, 0, 0.05);
     transition: background 0.2s;
+    border: none;
 }
 
 .modal-close-btn:hover {

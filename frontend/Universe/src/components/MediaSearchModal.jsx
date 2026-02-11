@@ -66,7 +66,7 @@ const MediaSearchModal = ({ isOpen, onClose, onAdd }) => {
                 >
                     <div className="modal-header">
                         <h2>Add Watched Content</h2>
-                        <button className="close-btn" onClick={onClose}><X size={24} /></button>
+                        <button className="close-btn" onClick={onClose} aria-label="Close modal"><X size={24} /></button>
                     </div>
 
                     <div className="type-toggle">
@@ -92,7 +92,7 @@ const MediaSearchModal = ({ isOpen, onClose, onAdd }) => {
                             onChange={(e) => setQuery(e.target.value)}
                             autoFocus
                         />
-                        <button type="submit" disabled={loading}>
+                        <button type="submit" disabled={loading} aria-label="Search">
                             {loading ? "..." : <Search size={20} />}
                         </button>
                     </form>
@@ -110,7 +110,7 @@ const MediaSearchModal = ({ isOpen, onClose, onAdd }) => {
                                     <h4>{item.title || item.name}</h4>
                                     <span>{item.release_date ? item.release_date.split('-')[0] : 'Unknown'}</span>
                                 </div>
-                                <button className="add-btn" onClick={() => handleAdd(item)}>
+                                <button className="add-btn" onClick={() => handleAdd(item)} aria-label={`Add ${item.title || item.name}`}>
                                     <Plus size={20} />
                                 </button>
                             </div>
