@@ -4,6 +4,7 @@ import API_BASE_URL from '../config/api';
 import { Plus } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import AddMemoryModal from '../components/Scrapbook/AddMemoryModal';
+import ConfirmationModal from '../components/ConfirmationModal';
 import MasonryGrid from '../components/Scrapbook/MasonryGrid';
 import PhotoCard from '../components/Scrapbook/CardTypes/PhotoCard';
 import NoteCard from '../components/Scrapbook/CardTypes/NoteCard';
@@ -16,6 +17,16 @@ const Scrapbook = () => {
     const [filter, setFilter] = useState('all');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
+
+    // Confirmation Modal State
+    const [confirmState, setConfirmState] = useState({
+        isOpen: false,
+        title: "",
+        message: "",
+        onConfirm: null,
+        isDestructive: false,
+        confirmText: "Confirm"
+    });
 
     // Fetch Memories
     useEffect(() => {
@@ -57,8 +68,22 @@ const Scrapbook = () => {
         }
     };
 
+    const requestDeleteMemory = (id) => {
+        setConfirmState({
+            isOpen: true,
+            title: "Delete this memory?",
+            message: "Are you sure you want to let go of this moment? This action cannot be undone.",
+            confirmText: "Delete Memory",
+            cancelText: "Keep it",
+            isDestructive: true,
+            onConfirm: () => handleDeleteMemory(id)
+        });
+    };
+
     const handleDeleteMemory = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this memory?")) return;
+        // Close modal first
+        setConfirmState(prev => ({ ...prev, isOpen: false }));
+
         try {
             const token = localStorage.getItem('token');
             await axios.delete(`${API_BASE_URL}/api/memories/${id}`, {
@@ -79,7 +104,7 @@ const Scrapbook = () => {
         const props = {
             key: memory._id,
             memory: memory,
-            onClick: () => handleDeleteMemory(memory._id)
+            onClick: () => requestDeleteMemory(memory._id)
         };
 
         switch (memory.type) {
@@ -133,6 +158,18 @@ const Scrapbook = () => {
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
                     onAddMemory={handleAddMemory}
+                />
+
+                <ConfirmationModal
+                    isOpen={confirmState.isOpen}
+                    onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+                    onConfirm={confirmState.onConfirm}
+                    title={confirmState.title}
+                    message={confirmState.message}
+                    confirmText={confirmState.confirmText}
+                    cancelText={confirmState.cancelText}
+                    isDestructive={confirmState.isDestructive}
+                    type={confirmState.isDestructive ? 'danger' : 'warning'}
                 />
             </div>
         </div>
