@@ -1,23 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, useMotionValue } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
-import { Plus, Sticker, Save } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
-import MemoryItem from '../components/Scrapbook/MemoryItem';
-import StickerDrawer from '../components/Scrapbook/StickerDrawer';
 import AddMemoryModal from '../components/Scrapbook/AddMemoryModal';
+import MasonryGrid from '../components/Scrapbook/MasonryGrid';
+import PhotoCard from '../components/Scrapbook/CardTypes/PhotoCard';
+import NoteCard from '../components/Scrapbook/CardTypes/NoteCard';
+import VoiceCard from '../components/Scrapbook/CardTypes/VoiceCard';
+import QuoteCard from '../components/Scrapbook/CardTypes/QuoteCard';
 import '../styles/scrapbook.css';
 
 const Scrapbook = () => {
     const [memories, setMemories] = useState([]);
-    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [filter, setFilter] = useState('all');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const containerRef = useRef(null);
-
-    // Motion values for the draggable canvas so we can read position
-    const canvasX = useMotionValue(0);
-    const canvasY = useMotionValue(0);
+    const [loading, setLoading] = useState(true);
 
     // Fetch Memories
     useEffect(() => {
@@ -27,62 +25,40 @@ const Scrapbook = () => {
                 const res = await axios.get(`${API_BASE_URL}/api/memories`, {
                     headers: { 'x-auth-token': token }
                 });
-                setMemories(res.data);
+                setMemories(res.data.memories || []);
             } catch (err) {
                 console.error('Error fetching memories:', err);
+            } finally {
+                setLoading(false);
             }
         };
         fetchMemories();
     }, []);
 
-    // Add Memory / Sticker
     const handleAddMemory = async (memoryData) => {
         try {
             const token = localStorage.getItem('token');
 
-            // Calculate position relative to the canvas so the item appears in the center of the viewport
-            const containerEl = containerRef.current;
-            const containerWidth = containerEl ? containerEl.clientWidth : window.innerWidth;
-            const containerHeight = containerEl ? containerEl.clientHeight : window.innerHeight;
-
             const newMemory = {
                 ...memoryData,
-                position: {
-                    x: -canvasX.get() + containerWidth / 2 - 100,
-                    y: -canvasY.get() + containerHeight / 2 - 100
-                },
-                rotation: Math.random() * 20 - 10, // Random tilt
+                position: { x: 0, y: 0 },
+                rotation: 0,
                 scale: 1,
-                zIndex: memories.length + 1
+                zIndex: 1
             };
 
             const res = await axios.post(`${API_BASE_URL}/api/memories`, newMemory, {
                 headers: { 'x-auth-token': token }
             });
 
-            setMemories([...memories, res.data]);
+            setMemories([res.data, ...memories]);
         } catch (err) {
             console.error('Error adding memory:', err);
         }
     };
 
-    // Update Position after drag
-    const updatePosition = async (id, newPos) => {
-        // Optimistic update
-        setMemories(prev => prev.map(m => m._id === id ? { ...m, position: newPos } : m));
-
-        try {
-            const token = localStorage.getItem('token');
-            await axios.put(`${API_BASE_URL}/api/memories/${id}`, { position: newPos }, {
-                headers: { 'x-auth-token': token }
-            });
-        } catch (err) {
-            console.error('Error updating position:', err);
-        }
-    };
-
-    // Delete Memory
     const handleDeleteMemory = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this memory?")) return;
         try {
             const token = localStorage.getItem('token');
             await axios.delete(`${API_BASE_URL}/api/memories/${id}`, {
@@ -94,55 +70,64 @@ const Scrapbook = () => {
         }
     };
 
-    return (
-        <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-            <div className="background-blobs">
-                <div className="blob blob-1"></div>
-                <div className="blob blob-2"></div>
-                <div className="blob blob-3"></div>
-            </div>
-            <Sidebar />
-            <div className="scrapbook-container" ref={containerRef}>
-                {/* Infinite Canvas Effect */}
-                <motion.div
-                    className="scrapbook-canvas"
-                    drag
-                    dragMomentum={false}
-                    dragElastic={0}
-                    style={{ x: canvasX, y: canvasY }}
-                >
-                    {memories.map(memory => (
-                        <MemoryItem
-                            key={memory._id}
-                            memory={memory}
-                            updatePosition={updatePosition}
-                            onDelete={handleDeleteMemory}
-                        />
-                    ))}
-                </motion.div>
+    const filteredMemories = memories.filter(m => {
+        if (filter === 'all') return true;
+        return m.type === filter;
+    });
 
-                {/* Floating Controls */}
-                <div className="scrapbook-controls">
-                    <button className="control-btn" onClick={() => setIsDrawerOpen(true)}>
-                        <Sticker size={24} />
-                    </button>
-                    <button className="control-btn primary" onClick={() => setIsModalOpen(true)}>
-                        <Plus size={32} />
-                    </button>
-                    <button className="control-btn" onClick={() => window.location.reload()}>
-                        <Save size={24} />
+    const renderCard = (memory) => {
+        const props = {
+            key: memory._id,
+            memory: memory,
+            onClick: () => handleDeleteMemory(memory._id)
+        };
+
+        switch (memory.type) {
+            case 'photo': return <PhotoCard {...props} />;
+            case 'note': return <NoteCard {...props} />;
+            case 'voice': return <VoiceCard {...props} />;
+            case 'quote': return <QuoteCard {...props} />;
+            default: return null;
+        }
+    };
+
+    return (
+        <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc' }}>
+            <Sidebar />
+            <div className="scrapbook-page-content">
+
+                {/* Header & Controls */}
+                <div className="scrapbook-header">
+                    <div>
+                        <h1 style={{ margin: 0, fontSize: '2rem', color: '#1e293b' }}>Scrapbook</h1>
+                        <p style={{ margin: '4px 0 0', color: '#64748b' }}>Collection of {memories.length} memories</p>
+                    </div>
+
+                    <div className="filter-bar">
+                        {['all', 'photo', 'note', 'voice', 'quote'].map(f => (
+                            <button
+                                key={f}
+                                className={`filter-btn ${filter === f ? 'active' : ''}`}
+                                onClick={() => setFilter(f)}
+                            >
+                                {f.charAt(0).toUpperCase() + f.slice(1)}
+                            </button>
+                        ))}
+                    </div>
+
+                    <button className="add-btn-primary" onClick={() => setIsModalOpen(true)}>
+                        <Plus size={24} />
                     </button>
                 </div>
 
-                {/* Drawers & Modals */}
-                <StickerDrawer
-                    isOpen={isDrawerOpen}
-                    onClose={() => setIsDrawerOpen(false)}
-                    onSelectSticker={(src) => {
-                        handleAddMemory({ type: 'sticker', content: src, style: {} });
-                        setIsDrawerOpen(false);
-                    }}
-                />
+                {/* Grid Content */}
+                {loading ? (
+                    <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>Loading your universe...</div>
+                ) : (
+                    <MasonryGrid>
+                        {filteredMemories.map(renderCard)}
+                    </MasonryGrid>
+                )}
 
                 <AddMemoryModal
                     isOpen={isModalOpen}

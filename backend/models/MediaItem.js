@@ -37,4 +37,7 @@ const MediaItemSchema = new mongoose.Schema({
 // Composite index to prevent duplicates per user
 MediaItemSchema.index({ user: 1, tmdbId: 1, mediaType: 1 }, { unique: true });
 
+// Index for sorting by dateAdded
+MediaItemSchema.index({ user: 1, dateAdded: -1 });
+
 module.exports = mongoose.model('MediaItem', MediaItemSchema);

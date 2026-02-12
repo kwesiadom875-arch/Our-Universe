@@ -80,6 +80,10 @@ const ScentSchema = new mongoose.Schema({
         text: String,
         date: Date
     }]
+
 });
+
+// Index for retrieving scents by user, most recently added first
+ScentSchema.index({ user: 1, dateAdded: -1 });
 
 module.exports = mongoose.model('Scent', ScentSchema);

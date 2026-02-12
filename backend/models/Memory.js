@@ -8,11 +8,11 @@ const MemorySchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['photo', 'note', 'sticker'],
+        enum: ['photo', 'note', 'sticker', 'voice', 'quote'],
         required: true
     },
     content: {
-        type: String, // URL for photo/sticker, text for note
+        type: String, // URL for photo/sticker/voice, text for note/quote
         required: true
     },
     style: {
@@ -20,6 +20,11 @@ const MemorySchema = new mongoose.Schema({
         fontFamily: String,
         textColor: String,
         stickerCategory: String // for stickers: 'love', 'travel', etc.
+    },
+    metadata: {
+        duration: Number, // for voice notes
+        location: String,
+        date: Date
     },
     position: {
         x: { type: Number, default: 0 },
@@ -42,5 +47,8 @@ const MemorySchema = new mongoose.Schema({
         default: Date.now
     }
 });
+
+// Add index for performance
+MemorySchema.index({ user: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Memory', MemorySchema);

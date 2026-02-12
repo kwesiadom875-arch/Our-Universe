@@ -2,7 +2,7 @@
     "name": "our-universe-frontend",
     "compatibility_date": "2024-11-01",
     "assets": {
-        "directory": "frontend/Universe/dist",
+        "directory": "frontend/Universe/dist"
     },
     "observability": {
         "enabled": true

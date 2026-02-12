@@ -8,14 +8,31 @@ const auth = require('../middleware/auth'); // Assuming you have auth middleware
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const skip = (page - 1) * limit;
+
         const user = await require('../models/User').findById(req.user.id);
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
         }
 
-        const memories = await Memory.find({ user: { $in: userIds } }).sort({ createdAt: 1 });
-        res.json(memories);
+        const query = { user: { $in: userIds } };
+
+        const memories = await Memory.find(query)
+            .sort({ createdAt: -1 }) // Sorted by newest first usually makes sense for feeds, was 1 (oldest first) in original but user requested -1. I will use -1 as requested.
+            .skip(skip)
+            .limit(limit);
+
+        const total = await Memory.countDocuments(query);
+
+        res.json({
+            memories,
+            total,
+            page,
+            pages: Math.ceil(total / limit)
+        });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutGrid, Clock, Calendar, Film, Wind, StickyNote, BookOpen, Heart, Menu, X } from 'lucide-react';
+import { LayoutGrid, Clock, Calendar, Film, Wind, StickyNote, BookOpen, Heart, Menu, X, Settings } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import '../styles/sidebar.css';
 
@@ -24,6 +24,16 @@ const Sidebar = () => {
         return () => { document.body.style.overflow = ''; };
     }, [isOpen]);
 
+    const navItems = [
+        { path: '/', icon: LayoutGrid, label: 'Dashboard' },
+        { path: '/timetable', icon: Clock, label: 'Timetable' },
+        { path: '/calendar', icon: Calendar, label: 'Calendar' },
+        { path: '/movies', icon: Film, label: 'Movies' },
+        { path: '/library', icon: BookOpen, label: 'Library' },
+        { path: '/scents', icon: Wind, label: 'Scents' },
+        { path: '/scrapbook', icon: StickyNote, label: 'Scrapbook' },
+    ];
+
     return (
         <>
             {/* Mobile Hamburger Button */}
@@ -41,45 +51,35 @@ const Sidebar = () => {
                 </button>
 
                 <div className="sidebar-header">
-                    <span className="logo-heart"><Heart size={28} fill="#ff3366" color="#ff3366" /></span>
+                    <Heart size={24} fill="#ff3366" color="#ff3366" className="logo-icon" />
                     <span className="logo-text">Universe</span>
                 </div>
 
                 <nav className="sidebar-nav">
-                    <NavLink to="/" className={({ isActive }) => isActive ? "side-link active" : "side-link"}>
-                        <span className="icon"><LayoutGrid size={20} /></span> Dashboard
-                    </NavLink>
-                    <NavLink to="/timetable" className={({ isActive }) => isActive ? "side-link active" : "side-link"}>
-                        <span className="icon"><Clock size={20} /></span> Timetable
-                    </NavLink>
-                    <NavLink to="/calendar" className={({ isActive }) => isActive ? "side-link active" : "side-link"}>
-                        <span className="icon"><Calendar size={20} /></span> Calendar
-                    </NavLink>
-                    <NavLink to="/movies" className={({ isActive }) => isActive ? "side-link active" : "side-link"}>
-                        <span className="icon"><Film size={20} /></span> Movies
-                    </NavLink>
-                    <NavLink to="/scents" className={({ isActive }) => isActive ? "side-link active" : "side-link"}>
-                        <span className="icon"><Wind size={20} /></span> Scents
-                    </NavLink>
-                    <NavLink to="/scrapbook" className={({ isActive }) => isActive ? "side-link active" : "side-link"}>
-                        <span className="icon"><StickyNote size={20} /></span> Scrapbook
-                    </NavLink>
-                    <NavLink to="/library" className={({ isActive }) => isActive ? "side-link active" : "side-link"}>
-                        <span className="icon"><BookOpen size={20} /></span> Library
-                    </NavLink>
+                    {navItems.map((item) => (
+                        <NavLink
+                            key={item.path}
+                            to={item.path}
+                            className={({ isActive }) => isActive ? "side-link active" : "side-link"}
+                        >
+                            <span className="icon"><item.icon size={20} /></span>
+                            <span className="label">{item.label}</span>
+                        </NavLink>
+                    ))}
                 </nav>
 
                 <div className="sidebar-footer">
-                    <div className="user-mini-profile">
+                    <div className="user-profile">
                         <img
                             src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'user'}`}
                             alt="avatar"
+                            className="user-avatar"
                         />
-                        <div className="user-details">
-                            <NavLink to="/profile" className="username-link" style={{ textDecoration: 'none', color: 'inherit' }}>
-                                <span className="username">{user?.username}</span>
-                            </NavLink>
-                            <button onClick={logout} className="btn-logout-mini">Logout</button>
+                        <div className="user-info">
+                            <span className="username">{user?.username}</span>
+                            <div className="user-actions">
+                                <button className="action-link">SETTINGS</button>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -49,4 +49,7 @@ const TimetableSchema = new mongoose.Schema({
     }
 });
 
+// Index for retrieving calls by user
+TimetableSchema.index({ user: 1 });
+
 module.exports = mongoose.model('Timetable', TimetableSchema);

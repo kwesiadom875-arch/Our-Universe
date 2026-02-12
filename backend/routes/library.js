@@ -32,13 +32,22 @@ router.get('/search', auth, async (req, res) => {
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
-        const user = await require('../models/User').findById(req.user.id);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 50;
+        const skip = (page - 1) * limit;
+
+        const user = await require('../models/User').findById(req.user.id).lean();
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
         }
 
-        const books = await LibraryItem.find({ user: { $in: userIds } }).sort({ createdAt: -1 });
+        const books = await LibraryItem.find({ user: { $in: userIds } })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
         res.json(books);
     } catch (err) {
         console.error(err.message);

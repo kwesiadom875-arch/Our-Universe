@@ -8,13 +8,22 @@ const Event = require('../models/Event');
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
-        const user = await require('../models/User').findById(req.user.id);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 100; // High default to maintain compatibility
+        const skip = (page - 1) * limit;
+
+        const user = await require('../models/User').findById(req.user.id).lean();
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
         }
 
-        const events = await Event.find({ user: { $in: userIds } }).sort({ date: 1 });
+        const events = await Event.find({ user: { $in: userIds } })
+            .sort({ date: 1 })
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
         res.json(events);
     } catch (err) {
         console.error(err.message);

@@ -23,6 +23,8 @@ const PORT = process.env.PORT || 5000;
 app.set('trust proxy', 1); // Trust first proxy
 app.use(cors());
 app.use(express.json());
+const compression = require('compression');
+app.use(compression());
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -63,7 +65,7 @@ if (fs.existsSync(frontendBuildPath)) {
     app.use(express.static(frontendBuildPath));
 
     // Catch-all: serve index.html for any non-API route (React Router support)
-    app.get('*', (req, res) => {
+    app.get(/.*/, (req, res) => {
         res.sendFile(indexHtmlPath);
     });
     console.log('Serving frontend from:', frontendBuildPath);

@@ -10,9 +10,14 @@
         "heroku-postbuild": "npm run build",
         "start": "cd backend && npm start",
         "dev:backend": "cd backend && npm run dev",
-        "dev:frontend": "cd frontend/Universe && npm run dev"
+        "dev:frontend": "cd frontend/Universe && npm run dev",
+        "dev:scraper": "cd scraper-service && npm start",
+        "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:scraper\""
     },
     "engines": {
         "node": ">=18.0.0"
+    },
+    "devDependencies": {
+        "concurrently": "^9.2.1"
     }
 }
