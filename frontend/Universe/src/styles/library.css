@@ -399,7 +399,7 @@
 .book-search-input {
     width: 100%;
     padding: 1rem 1.4rem;
-    padding-right: 7rem;
+    padding-right: 9.5rem; /* Palette: Increased padding to avoid overlap with hint */
     font-size: 1rem;
     background: rgba(255, 255, 255, 0.85);
     border: 1.5px solid #d4bfad;
@@ -1847,4 +1847,45 @@
         z-index: 10000;
         /* Ensure on top of mobile nav */
     }
+}
+/* ═══════════════════════════════════════════════════════════════ */
+/* PALETTE - UX IMPROVEMENTS                                      */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* Search Shortcut Hint */
+.search-shortcut-hint {
+    position: absolute;
+    right: 130px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid #d4bfad;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    color: #8b7e72;
+    pointer-events: none;
+    font-family: monospace;
+    font-weight: 700;
+}
+
+/* Close Search Button */
+.close-search-btn {
+    background: none;
+    border: none;
+    color: #8b7e72;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    padding: 5px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.close-search-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #5a4636;
 }

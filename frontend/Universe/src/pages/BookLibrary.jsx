@@ -159,6 +159,23 @@ const BookLibrary = () => {
     const [viewMode, setViewMode] = useState('shelf'); // 'shelf' | 'constellation'
     const [showEpubReader, setShowEpubReader] = useState(false); // NEW: Reader state
     const fileInputRef = useRef(null); // NEW: For EPUB upload
+    const searchInputRef = useRef(null);
+
+    // Palette: Keyboard shortcut to search
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (
+                (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) ||
+                ((e.metaKey || e.ctrlKey) && e.key === 'k')
+            ) {
+                e.preventDefault();
+                searchInputRef.current?.focus();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     // Shelf Decor State (Persisted in local storage for MVP)
     const [decorItems, setDecorItems] = useState(() => {
@@ -494,12 +511,15 @@ const BookLibrary = () => {
                     <div className="search-bar-wrapper">
                         <form onSubmit={handleSearch}>
                             <input
+                                ref={searchInputRef}
                                 type="text"
                                 className="book-search-input"
                                 placeholder="Search by title, author, or ISBN..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
+                                aria-label="Search books"
                             />
+                            <span className="search-shortcut-hint">/</span>
                             <button type="submit" className="search-btn"><Search size={16} /> Discover</button>
                         </form>
                     </div>
@@ -517,7 +537,7 @@ const BookLibrary = () => {
                         >
                             <div className="section-header">
                                 <h2 className="section-title">Search Results</h2>
-                                <button onClick={closeSearch} style={{ background: 'none', border: 'none', color: '#8b7e72', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'Playfair Display, serif', fontWeight: 600 }}>
+                                <button onClick={closeSearch} className="close-search-btn" aria-label="Close search results">
                                     Close <X size={18} />
                                 </button>
                             </div>
