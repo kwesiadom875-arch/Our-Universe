@@ -5,6 +5,7 @@ const MediaItem = require('../models/MediaItem');
 const Swipe = require('../models/Swipe');
 const User = require('../models/User');
 const axios = require('axios');
+const { fetchPopularMedia } = require('../services/tmdbService');
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
@@ -112,8 +113,9 @@ router.get('/popular', auth, async (req, res) => {
         const REQUIRED_COUNT = 20;
 
         while (candidateItems.length < REQUIRED_COUNT && page <= MAX_PAGES) {
-            const tmdbRes = await axios.get(`https://api.themoviedb.org/3/${mediaType}/popular?api_key=${TMDB_API_KEY}&language=en-US&page=${page}`);
-            const results = tmdbRes.data.results;
+            // Optimized: Use cached service to fetch popular media, reducing external API calls
+            const data = await fetchPopularMedia(mediaType, page);
+            const results = data.results;
 
             const newCandidates = results.filter(item => !seenIds.has(item.id));
 
