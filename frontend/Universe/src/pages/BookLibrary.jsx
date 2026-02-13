@@ -947,9 +947,9 @@ const BookLibrary = () => {
                                     </div>
 
                                     <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-                                        <button className="btn-icon"><Bell size={20} /></button>
-                                        <button className="btn-icon"><Moon size={20} /></button>
-                                        <button className="btn-icon" onClick={() => addNotification('info', 'Settings', 'Settings functionality coming soon!')}><Settings size={20} /></button>
+                                        <button className="btn-icon" aria-label="Notifications"><Bell size={20} /></button>
+                                        <button className="btn-icon" aria-label="Dark Mode"><Moon size={20} /></button>
+                                        <button className="btn-icon" aria-label="Settings" onClick={() => addNotification('info', 'Settings', 'Settings functionality coming soon!')}><Settings size={20} /></button>
                                     </div>
                                 </div>
 
@@ -1061,7 +1061,7 @@ const BookLibrary = () => {
                                                                     <button className="suggestion-accept" onClick={() => addCharacterFromSuggestion(s)}>
                                                                         <Plus size={14} /> Add
                                                                     </button>
-                                                                    <button className="suggestion-dismiss" onClick={() => setSuggestions(prev => prev.filter((_, idx) => idx !== i))}>
+                                                                    <button className="suggestion-dismiss" aria-label="Dismiss suggestion" onClick={() => setSuggestions(prev => prev.filter((_, idx) => idx !== i))}>
                                                                         <X size={14} />
                                                                     </button>
                                                                 </div>
@@ -1140,10 +1140,10 @@ const BookLibrary = () => {
                                                                     <p className="char-description">{char.description}</p>
                                                                 )}
                                                                 <div className="char-actions">
-                                                                    <button onClick={() => setEditingChar(char._id)} title="Edit">
+                                                                    <button onClick={() => setEditingChar(char._id)} title="Edit" aria-label="Edit character">
                                                                         <Edit2 size={14} />
                                                                     </button>
-                                                                    <button onClick={() => deleteCharacter(char._id)} title="Delete">
+                                                                    <button onClick={() => deleteCharacter(char._id)} title="Delete" aria-label="Delete character">
                                                                         <Trash2 size={14} />
                                                                     </button>
                                                                 </div>
@@ -1232,7 +1232,7 @@ const BookLibrary = () => {
                                                                 {note.type === 'thought' && <MessageSquare size={14} />}
                                                                 {note.type}
                                                             </div>
-                                                            <button className="note-delete" onClick={() => deleteNote(note._id)}>
+                                                            <button className="note-delete" aria-label="Delete note" onClick={() => deleteNote(note._id)}>
                                                                 <Trash2 size={14} />
                                                             </button>
                                                         </div>
