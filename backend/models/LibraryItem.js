@@ -74,4 +74,10 @@ const LibraryItemSchema = new mongoose.Schema({
     }
 });
 
+// Index for efficient sorting of user's library items
+LibraryItemSchema.index({ user: 1, createdAt: -1 });
+
+// Compound index to optimize lookup by googleBookId for a specific user
+LibraryItemSchema.index({ user: 1, googleBookId: 1 });
+
 module.exports = mongoose.model('LibraryItem', LibraryItemSchema);
