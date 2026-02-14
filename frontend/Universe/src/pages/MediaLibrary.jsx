@@ -1,9 +1,9 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useMemo } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import AuthContext from '../context/AuthContext';
 import Layout from '../components/Layout';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { Search, Heart, User, Users, Sparkles, Plus } from 'lucide-react';
 import MediaSearchModal from '../components/MediaSearchModal';
 import '../styles/medialibrary.css';
@@ -46,9 +46,9 @@ const MediaLibrary = () => {
     // Combine Data for "All" view
     // In a real app, we'd merge duplicates or handle same item in different lists
     // For now, let's just combine for display
-    const allItems = [...watched, ...matches];
+    const allItems = useMemo(() => [...watched, ...matches], [watched, matches]);
 
-    const getFilteredList = () => {
+    const filteredList = useMemo(() => {
         let list = [];
         switch (view) {
             case 'all':
@@ -71,9 +71,7 @@ const MediaLibrary = () => {
             return list.filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase()));
         }
         return list;
-    };
-
-    const filteredList = getFilteredList();
+    }, [view, allItems, watched, matches, searchQuery]);
 
     // Stats for placeholder
     const matchCount = matches.length;
@@ -147,9 +145,11 @@ const MediaLibrary = () => {
                                 layout
                             >
                                 <div className="poster-frame">
-                                    <div
+                                    <img
                                         className="poster-img"
-                                        style={{ backgroundImage: `url(https://image.tmdb.org/t/p/w500${item.posterPath || item.poster_path})` }}
+                                        src={`https://image.tmdb.org/t/p/w500${item.posterPath || item.poster_path}`}
+                                        alt={item.title}
+                                        loading="lazy"
                                     />
                                     {/* Optional Overlay/Hover effects could go here */}
                                 </div>
