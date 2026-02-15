@@ -4,7 +4,7 @@ import API_BASE_URL from '../config/api';
 import AuthContext from '../context/AuthContext';
 import NotificationContext from '../context/NotificationContext';
 import { X, Link as LinkIcon, Edit3, Wand2, Loader2, Info } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
 
 const AddScentModal = ({ isOpen, onClose, onAdd }) => {
     const { token } = useContext(AuthContext);
@@ -101,16 +101,24 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                     <p>Grow your shared aromatic library</p>
                 </div>
 
-                <div className="modal-tabs">
+                <div className="modal-tabs" role="tablist">
                     <button
                         className={activeTab === 'magic' ? 'active' : ''}
                         onClick={() => setActiveTab('magic')}
+                        role="tab"
+                        aria-selected={activeTab === 'magic'}
+                        aria-controls="panel-magic"
+                        id="tab-magic"
                     >
                         <LinkIcon size={16} /> Quick Add (Link)
                     </button>
                     <button
                         className={activeTab === 'manual' ? 'active' : ''}
                         onClick={() => setActiveTab('manual')}
+                        role="tab"
+                        aria-selected={activeTab === 'manual'}
+                        aria-controls="panel-manual"
+                        id="tab-manual"
                     >
                         <Edit3 size={16} /> Manual Add
                     </button>
@@ -118,10 +126,11 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
 
                 <div className="modal-body">
                     {activeTab === 'magic' ? (
-                        <div className="magic-tab-content">
-                            <label>FRAGRANTICA URL</label>
+                        <div className="magic-tab-content" role="tabpanel" id="panel-magic" aria-labelledby="tab-magic">
+                            <label htmlFor="magic-url">FRAGRANTICA URL</label>
                             <div className="magic-input-group">
                                 <input
+                                    id="magic-url"
                                     type="text"
                                     placeholder="https://www.fragrantica.com/perfume/..."
                                     value={magicUrl}
@@ -168,37 +177,42 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                             )}
                         </div>
                     ) : (
-                        <form className="manual-form" onSubmit={handleSubmit}>
-                            <div className="form-group">
-                                <label>Name</label>
-                                <input
-                                    type="text"
-                                    value={formData.name}
-                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Brand</label>
-                                <input
-                                    type="text"
-                                    value={formData.brand}
-                                    onChange={e => setFormData({ ...formData, brand: e.target.value })}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Image URL</label>
-                                <input
-                                    type="text"
-                                    value={formData.image}
-                                    onChange={e => setFormData({ ...formData, image: e.target.value })}
-                                />
-                            </div>
-                            <button type="submit" className="manual-submit-btn" disabled={loading}>
-                                {loading ? 'Adding...' : 'Add to Collection'}
-                            </button>
-                        </form>
+                        <div role="tabpanel" id="panel-manual" aria-labelledby="tab-manual">
+                            <form className="manual-form" onSubmit={handleSubmit}>
+                                <div className="form-group">
+                                    <label htmlFor="scent-name">Name</label>
+                                    <input
+                                        id="scent-name"
+                                        type="text"
+                                        value={formData.name}
+                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="scent-brand">Brand</label>
+                                    <input
+                                        id="scent-brand"
+                                        type="text"
+                                        value={formData.brand}
+                                        onChange={e => setFormData({ ...formData, brand: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="scent-image">Image URL</label>
+                                    <input
+                                        id="scent-image"
+                                        type="text"
+                                        value={formData.image}
+                                        onChange={e => setFormData({ ...formData, image: e.target.value })}
+                                    />
+                                </div>
+                                <button type="submit" className="manual-submit-btn" disabled={loading}>
+                                    {loading ? 'Adding...' : 'Add to Collection'}
+                                </button>
+                            </form>
+                        </div>
                     )}
                 </div>
 
