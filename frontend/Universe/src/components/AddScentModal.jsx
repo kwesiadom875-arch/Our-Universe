@@ -4,7 +4,8 @@ import API_BASE_URL from '../config/api';
 import AuthContext from '../context/AuthContext';
 import NotificationContext from '../context/NotificationContext';
 import { X, Link as LinkIcon, Edit3, Wand2, Loader2, Info } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+// eslint-disable-next-line no-unused-vars
+import { motion } from 'framer-motion';
 
 const AddScentModal = ({ isOpen, onClose, onAdd }) => {
     const { token } = useContext(AuthContext);
@@ -119,9 +120,10 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                 <div className="modal-body">
                     {activeTab === 'magic' ? (
                         <div className="magic-tab-content">
-                            <label>FRAGRANTICA URL</label>
+                            <label htmlFor="magic-url">FRAGRANTICA URL</label>
                             <div className="magic-input-group">
                                 <input
+                                    id="magic-url"
                                     type="text"
                                     placeholder="https://www.fragrantica.com/perfume/..."
                                     value={magicUrl}
@@ -170,27 +172,33 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                     ) : (
                         <form className="manual-form" onSubmit={handleSubmit}>
                             <div className="form-group">
-                                <label>Name</label>
+                                <label htmlFor="scent-name">Name</label>
                                 <input
+                                    id="scent-name"
                                     type="text"
+                                    placeholder="e.g. Black Orchid"
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     required
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Brand</label>
+                                <label htmlFor="scent-brand">Brand</label>
                                 <input
+                                    id="scent-brand"
                                     type="text"
+                                    placeholder="e.g. Tom Ford"
                                     value={formData.brand}
                                     onChange={e => setFormData({ ...formData, brand: e.target.value })}
                                     required
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Image URL</label>
+                                <label htmlFor="scent-image">Image URL</label>
                                 <input
+                                    id="scent-image"
                                     type="text"
+                                    placeholder="https://..."
                                     value={formData.image}
                                     onChange={e => setFormData({ ...formData, image: e.target.value })}
                                 />
