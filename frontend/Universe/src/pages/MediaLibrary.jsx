@@ -3,9 +3,11 @@ import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import AuthContext from '../context/AuthContext';
 import Layout from '../components/Layout';
-import { motion, AnimatePresence } from 'framer-motion';
+// eslint-disable-next-line no-unused-vars
+import { motion } from 'framer-motion';
 import { Search, Heart, User, Users, Sparkles, Plus } from 'lucide-react';
 import MediaSearchModal from '../components/MediaSearchModal';
+import LoadingSpinner from '../components/LoadingSpinner';
 import '../styles/medialibrary.css';
 
 const MediaLibrary = () => {
@@ -15,6 +17,7 @@ const MediaLibrary = () => {
     const [view, setView] = useState('all'); // 'all' | 'liked_me' | 'liked_partner' | 'matches'
     const [searchQuery, setSearchQuery] = useState('');
     const [showSearchModal, setShowSearchModal] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -38,6 +41,8 @@ const MediaLibrary = () => {
 
             } catch (err) {
                 console.error("Error loading library:", err);
+            } finally {
+                setLoading(false);
             }
         };
         fetchData();
@@ -105,24 +110,28 @@ const MediaLibrary = () => {
                         <button
                             className={view === 'all' ? 'active' : ''}
                             onClick={() => setView('all')}
+                            aria-pressed={view === 'all'}
                         >
                             All Movies
                         </button>
                         <button
                             className={view === 'liked_me' ? 'active' : ''}
                             onClick={() => setView('liked_me')}
+                            aria-pressed={view === 'liked_me'}
                         >
                             Liked by Me
                         </button>
                         <button
                             className={view === 'liked_partner' ? 'active' : ''}
                             onClick={() => setView('liked_partner')}
+                            aria-pressed={view === 'liked_partner'}
                         >
                             Liked by Partner
                         </button>
                         <button
                             className={view === 'matches' ? 'active' : ''}
                             onClick={() => setView('matches')}
+                            aria-pressed={view === 'matches'}
                         >
                             <Heart size={14} fill={view === 'matches' ? "#D4A373" : "none"} /> Matches
                         </button>
@@ -130,48 +139,55 @@ const MediaLibrary = () => {
                 </div>
 
                 {/* content grid */}
-                <motion.div className="lib-grid" layout>
-                    {filteredList.length === 0 ? (
-                        <div className="lib-empty">
-                            <p>No titles found in this section.</p>
-                            <button className="text-btn" onClick={() => setShowSearchModal(true)}>Add your first movie</button>
-                        </div>
-                    ) : (
-                        filteredList.map((item, idx) => (
-                            <motion.div
-                                key={item._id || item.tmdbId + idx}
-                                className="lib-card"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.05 }}
-                                layout
-                            >
-                                <div className="poster-frame">
-                                    <div
-                                        className="poster-img"
-                                        style={{ backgroundImage: `url(https://image.tmdb.org/t/p/w500${item.posterPath || item.poster_path})` }}
-                                    />
-                                    {/* Optional Overlay/Hover effects could go here */}
-                                </div>
-                                <div className="card-meta">
-                                    <h3>{item.title}</h3>
-                                    <div className="status-line">
-                                        {item.isMatch ? (
-                                            <span className="status-match">MATCHED</span>
-                                        ) : (
-                                            <span className="status-liked">SARAH LIKED</span>
-                                            /* Hardcoded name for 'Liked by Me' context simulating user view */
-                                        )}
-                                        {item.vote_average && (
-                                            <span className="status-score">98% MATCH</span>
-                                            /* Placeholder score logic */
-                                        )}
+                {loading ? (
+                    <LoadingSpinner />
+                ) : (
+                    <motion.div className="lib-grid" layout>
+                        {filteredList.length === 0 ? (
+                            <div className="lib-empty">
+                                <p>No titles found in this section.</p>
+                                <button className="text-btn" onClick={() => setShowSearchModal(true)}>Add your first movie</button>
+                            </div>
+                        ) : (
+                            filteredList.map((item, idx) => (
+                                <motion.div
+                                    key={item._id || item.tmdbId + idx}
+                                    className="lib-card"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: idx * 0.05 }}
+                                    layout
+                                >
+                                    <div className="poster-frame">
+                                        <img
+                                            src={`https://image.tmdb.org/t/p/w500${item.posterPath || item.poster_path}`}
+                                            alt={item.title}
+                                            className="poster-img"
+                                            style={{ objectFit: 'cover' }}
+                                            loading="lazy"
+                                        />
+                                        {/* Optional Overlay/Hover effects could go here */}
                                     </div>
-                                </div>
-                            </motion.div>
-                        ))
-                    )}
-                </motion.div>
+                                    <div className="card-meta">
+                                        <h3>{item.title}</h3>
+                                        <div className="status-line">
+                                            {item.isMatch ? (
+                                                <span className="status-match">MATCHED</span>
+                                            ) : (
+                                                <span className="status-liked">SARAH LIKED</span>
+                                                /* Hardcoded name for 'Liked by Me' context simulating user view */
+                                            )}
+                                            {item.vote_average && (
+                                                <span className="status-score">98% MATCH</span>
+                                                /* Placeholder score logic */
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))
+                        )}
+                    </motion.div>
+                )}
 
                 {/* Floating Action Bar */}
                 <div className="floating-action-bar-container">
