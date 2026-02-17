@@ -152,9 +152,10 @@
 .poster-img {
     width: 100%;
     height: 100%;
-    background-size: cover;
-    background-position: center;
+    object-fit: cover;
+    object-position: center;
     transition: transform 0.5s;
+    display: block;
 }
 
 .lib-card:hover .poster-img {
