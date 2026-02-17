@@ -3,7 +3,7 @@ import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import AuthContext from '../context/AuthContext';
 import Layout from '../components/Layout';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { Search, Heart, User, Users, Sparkles, Plus } from 'lucide-react';
 import MediaSearchModal from '../components/MediaSearchModal';
 import '../styles/medialibrary.css';
@@ -147,9 +147,11 @@ const MediaLibrary = () => {
                                 layout
                             >
                                 <div className="poster-frame">
-                                    <div
+                                    <img
                                         className="poster-img"
-                                        style={{ backgroundImage: `url(https://image.tmdb.org/t/p/w500${item.posterPath || item.poster_path})` }}
+                                        src={`https://image.tmdb.org/t/p/w342${item.posterPath || item.poster_path}`}
+                                        alt={item.title}
+                                        loading="lazy"
                                     />
                                     {/* Optional Overlay/Hover effects could go here */}
                                 </div>
