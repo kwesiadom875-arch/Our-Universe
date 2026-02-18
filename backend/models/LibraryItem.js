@@ -74,4 +74,10 @@ const LibraryItemSchema = new mongoose.Schema({
     }
 });
 
+// Compound index for frequent queries (Get user's library sorted by creation)
+LibraryItemSchema.index({ user: 1, createdAt: -1 });
+
+// Compound index for checking duplicates (User cannot add same book twice)
+LibraryItemSchema.index({ user: 1, googleBookId: 1 });
+
 module.exports = mongoose.model('LibraryItem', LibraryItemSchema);
