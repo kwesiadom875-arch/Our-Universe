@@ -116,6 +116,8 @@
     flex-direction: column;
     height: 400px;
     /* Fixed height for consistency */
+    text-decoration: none;
+    color: inherit;
 }
 
 .scent-card:hover {
@@ -194,6 +196,13 @@
     color: #888;
     transition: all 0.3s;
     background: rgba(255, 255, 255, 0.5);
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    font-family: inherit;
+    font-size: inherit;
 }
 
 .add-card:hover {

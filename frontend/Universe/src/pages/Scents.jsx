@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import AuthContext from '../context/AuthContext';
@@ -7,6 +8,8 @@ import AddScentModal from '../components/AddScentModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Search, Heart, Sparkles, Wind, Droplets, Leaf } from 'lucide-react';
 import '../styles/scents.css';
+
+const MotionLink = motion.create(Link);
 
 const Scents = () => {
     const { token, user } = useContext(AuthContext);
@@ -121,13 +124,14 @@ const Scents = () => {
                     {/* Grid */}
                     <motion.div className="scents-grid" layout>
                         {filteredScents.map((scent, idx) => (
-                            <motion.div
+                            <MotionLink
                                 key={scent._id}
+                                to={`/scents/${scent._id}`}
                                 className="scent-card"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1 }}
-                                onClick={() => window.location.href = `/scents/${scent._id}`} // Simple navigation
+                                aria-label={`View details for ${scent.name}`}
                             >
 
                                 <div className="scent-image-container">
@@ -135,6 +139,7 @@ const Scents = () => {
                                         src={scent.image && scent.image.length > 10 ? scent.image : FALLBACK_IMAGE}
                                         alt={scent.name}
                                         className="scent-image"
+                                        loading="lazy"
                                         onError={(e) => {
                                             e.target.onerror = null;
                                             e.target.src = FALLBACK_IMAGE;
@@ -150,20 +155,22 @@ const Scents = () => {
                                         ))}
                                     </div>
                                 </div>
-                            </motion.div>
+                            </MotionLink>
                         ))}
 
                         {/* Add Card */}
-                        <motion.div
+                        <motion.button
                             className="add-card"
                             whileHover={{ scale: 1.02 }}
                             onClick={() => setShowAddModal(true)}
+                            type="button"
+                            aria-label="Add new scent"
                         >
                             <div className="add-icon">
                                 <Plus size={32} />
                             </div>
                             <span>Add to Collection</span>
-                        </motion.div>
+                        </motion.button>
                     </motion.div>
 
                     {/* Floating Stats Bar */}
