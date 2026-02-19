@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X, Trash2, AlertTriangle, CheckCircle } from 'lucide-react';
 import '../styles/confirmationModal.css';
 
@@ -13,6 +13,22 @@ const ConfirmationModal = ({
     isDestructive = false,
     type = 'danger' // danger, warning, success
 }) => {
+    const cancelRef = useRef(null);
+    const titleId = "confirmation-title";
+    const messageId = "confirmation-message";
+
+    useEffect(() => {
+        if (isOpen) {
+            // Accessibility: Focus cancel button by default (safer for destructive actions)
+            cancelRef.current?.focus();
+
+            // Accessibility: Close on Escape key
+            const handleEscape = (e) => e.key === 'Escape' && onClose();
+            document.addEventListener('keydown', handleEscape);
+            return () => document.removeEventListener('keydown', handleEscape);
+        }
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     const getIcon = () => {
@@ -38,14 +54,20 @@ const ConfirmationModal = ({
     };
 
     return (
-        <div className="confirmation-overlay">
+        <div
+            className="confirmation-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            aria-describedby={messageId}
+        >
             <div className="confirmation-card">
                 <div className="confirmation-icon" style={{ background: getIconBg() }}>
                     {getIcon()}
                 </div>
 
-                <h3 className="confirmation-title">{title}</h3>
-                <p className="confirmation-message">{message}</p>
+                <h3 id={titleId} className="confirmation-title">{title}</h3>
+                <p id={messageId} className="confirmation-message">{message}</p>
 
                 <div className="confirmation-actions">
                     <button
@@ -55,6 +77,7 @@ const ConfirmationModal = ({
                         {confirmText}
                     </button>
                     <button
+                        ref={cancelRef}
                         className="action-btn cancel-btn"
                         onClick={onClose}
                     >
