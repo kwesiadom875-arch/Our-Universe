@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, Trash2, AlertTriangle, CheckCircle } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { Trash2, AlertTriangle, CheckCircle } from 'lucide-react';
 import '../styles/confirmationModal.css';
 
 const ConfirmationModal = ({
@@ -13,6 +13,24 @@ const ConfirmationModal = ({
     isDestructive = false,
     type = 'danger' // danger, warning, success
 }) => {
+    const cancelRef = useRef(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            // Focus cancel button for safety (prevent accidental confirmation)
+            // Use setTimeout to ensure DOM is ready if needed, though usually works directly in effect
+            const timer = setTimeout(() => cancelRef.current?.focus(), 50);
+
+            const handleEscape = (e) => e.key === 'Escape' && onClose();
+            window.addEventListener('keydown', handleEscape);
+
+            return () => {
+                window.removeEventListener('keydown', handleEscape);
+                clearTimeout(timer);
+            };
+        }
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     const getIcon = () => {
@@ -38,23 +56,32 @@ const ConfirmationModal = ({
     };
 
     return (
-        <div className="confirmation-overlay">
+        <div
+            className="confirmation-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+            aria-describedby="modal-message"
+        >
             <div className="confirmation-card">
-                <div className="confirmation-icon" style={{ background: getIconBg() }}>
+                <div className="confirmation-icon" aria-hidden="true" style={{ background: getIconBg() }}>
                     {getIcon()}
                 </div>
 
-                <h3 className="confirmation-title">{title}</h3>
-                <p className="confirmation-message">{message}</p>
+                <h3 id="modal-title" className="confirmation-title">{title}</h3>
+                <p id="modal-message" className="confirmation-message">{message}</p>
 
                 <div className="confirmation-actions">
                     <button
+                        type="button"
                         className={`action-btn confirm-btn ${isDestructive ? 'destructive' : ''}`}
                         onClick={onConfirm}
                     >
                         {confirmText}
                     </button>
                     <button
+                        type="button"
+                        ref={cancelRef}
                         className="action-btn cancel-btn"
                         onClick={onClose}
                     >
