@@ -74,4 +74,8 @@ const LibraryItemSchema = new mongoose.Schema({
     }
 });
 
+// Indexes for performance
+LibraryItemSchema.index({ user: 1, createdAt: -1 });
+LibraryItemSchema.index({ user: 1, googleBookId: 1 });
+
 module.exports = mongoose.model('LibraryItem', LibraryItemSchema);
