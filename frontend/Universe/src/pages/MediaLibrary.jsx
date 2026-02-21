@@ -147,9 +147,12 @@ const MediaLibrary = () => {
                                 layout
                             >
                                 <div className="poster-frame">
-                                    <div
+                                    <img
                                         className="poster-img"
-                                        style={{ backgroundImage: `url(https://image.tmdb.org/t/p/w500${item.posterPath || item.poster_path})` }}
+                                        src={`https://image.tmdb.org/t/p/w342${item.posterPath || item.poster_path}`}
+                                        alt={item.title}
+                                        loading={idx < 4 ? "eager" : "lazy"}
+                                        decoding="async"
                                     />
                                     {/* Optional Overlay/Hover effects could go here */}
                                 </div>
