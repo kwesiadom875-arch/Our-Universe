@@ -147,10 +147,15 @@ const MediaLibrary = () => {
                                 layout
                             >
                                 <div className="poster-frame">
-                                    <div
-                                        className="poster-img"
-                                        style={{ backgroundImage: `url(https://image.tmdb.org/t/p/w500${item.posterPath || item.poster_path})` }}
-                                    />
+                                    {(item.posterPath || item.poster_path) && (
+                                        <img
+                                            src={`https://image.tmdb.org/t/p/w342${item.posterPath || item.poster_path}`}
+                                            alt={item.title}
+                                            className="poster-img"
+                                            loading={idx < 4 ? "eager" : "lazy"}
+                                            decoding="async"
+                                        />
+                                    )}
                                     {/* Optional Overlay/Hover effects could go here */}
                                 </div>
                                 <div className="card-meta">
