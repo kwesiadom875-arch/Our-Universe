@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X, Trash2, AlertTriangle, CheckCircle } from 'lucide-react';
 import '../styles/confirmationModal.css';
 
@@ -13,6 +13,34 @@ const ConfirmationModal = ({
     isDestructive = false,
     type = 'danger' // danger, warning, success
 }) => {
+    const cancelRef = useRef(null);
+    const previousFocusRef = useRef(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            previousFocusRef.current = document.activeElement;
+            // Focus cancel button for safety
+            if (cancelRef.current) {
+                cancelRef.current.focus();
+            }
+
+            const handleKeyDown = (e) => {
+                if (e.key === 'Escape') {
+                    onClose();
+                }
+            };
+
+            document.addEventListener('keydown', handleKeyDown);
+
+            return () => {
+                document.removeEventListener('keydown', handleKeyDown);
+                if (previousFocusRef.current) {
+                    previousFocusRef.current.focus();
+                }
+            };
+        }
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     const getIcon = () => {
@@ -38,14 +66,20 @@ const ConfirmationModal = ({
     };
 
     return (
-        <div className="confirmation-overlay">
+        <div
+            className="confirmation-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+            aria-describedby="modal-message"
+        >
             <div className="confirmation-card">
                 <div className="confirmation-icon" style={{ background: getIconBg() }}>
                     {getIcon()}
                 </div>
 
-                <h3 className="confirmation-title">{title}</h3>
-                <p className="confirmation-message">{message}</p>
+                <h3 className="confirmation-title" id="modal-title">{title}</h3>
+                <p className="confirmation-message" id="modal-message">{message}</p>
 
                 <div className="confirmation-actions">
                     <button
@@ -57,6 +91,7 @@ const ConfirmationModal = ({
                     <button
                         className="action-btn cancel-btn"
                         onClick={onClose}
+                        ref={cancelRef}
                     >
                         {cancelText}
                     </button>
