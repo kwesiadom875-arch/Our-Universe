@@ -74,4 +74,10 @@ const LibraryItemSchema = new mongoose.Schema({
     }
 });
 
+// Index for sorting by createdAt
+LibraryItemSchema.index({ user: 1, createdAt: -1 });
+
+// Index for efficient lookups when checking for duplicates
+LibraryItemSchema.index({ user: 1, googleBookId: 1 });
+
 module.exports = mongoose.model('LibraryItem', LibraryItemSchema);
