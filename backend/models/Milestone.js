@@ -32,4 +32,10 @@ const MilestoneSchema = new mongoose.Schema({
     }
 });
 
+// Index for retrieving milestones by user1 (usually creator) and date
+MilestoneSchema.index({ user1: 1, date: 1 });
+
+// Index for retrieving milestones by user2 (partner) and date
+MilestoneSchema.index({ user2: 1, date: 1 });
+
 module.exports = mongoose.model('Milestone', MilestoneSchema);
