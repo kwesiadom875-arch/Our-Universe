@@ -4,6 +4,7 @@ import API_BASE_URL from '../config/api';
 import AuthContext from '../context/AuthContext';
 import NotificationContext from '../context/NotificationContext';
 import { X, Link as LinkIcon, Edit3, Wand2, Loader2, Info } from 'lucide-react';
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AddScentModal = ({ isOpen, onClose, onAdd }) => {
@@ -101,14 +102,22 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                     <p>Grow your shared aromatic library</p>
                 </div>
 
-                <div className="modal-tabs">
+                <div className="modal-tabs" role="tablist">
                     <button
+                        role="tab"
+                        aria-selected={activeTab === 'magic'}
+                        aria-controls="panel-magic"
+                        id="tab-magic"
                         className={activeTab === 'magic' ? 'active' : ''}
                         onClick={() => setActiveTab('magic')}
                     >
                         <LinkIcon size={16} /> Quick Add (Link)
                     </button>
                     <button
+                        role="tab"
+                        aria-selected={activeTab === 'manual'}
+                        aria-controls="panel-manual"
+                        id="tab-manual"
                         className={activeTab === 'manual' ? 'active' : ''}
                         onClick={() => setActiveTab('manual')}
                     >
@@ -118,10 +127,16 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
 
                 <div className="modal-body">
                     {activeTab === 'magic' ? (
-                        <div className="magic-tab-content">
-                            <label>FRAGRANTICA URL</label>
+                        <div
+                            className="magic-tab-content"
+                            role="tabpanel"
+                            id="panel-magic"
+                            aria-labelledby="tab-magic"
+                        >
+                            <label htmlFor="magic-url-input">FRAGRANTICA URL</label>
                             <div className="magic-input-group">
                                 <input
+                                    id="magic-url-input"
                                     type="text"
                                     placeholder="https://www.fragrantica.com/perfume/..."
                                     value={magicUrl}
@@ -168,35 +183,50 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                             )}
                         </div>
                     ) : (
-                        <form className="manual-form" onSubmit={handleSubmit}>
+                        <form
+                            className="manual-form"
+                            onSubmit={handleSubmit}
+                            role="tabpanel"
+                            id="panel-manual"
+                            aria-labelledby="tab-manual"
+                        >
                             <div className="form-group">
-                                <label>Name</label>
+                                <label htmlFor="scent-name">Name <span aria-hidden="true">*</span></label>
                                 <input
+                                    id="scent-name"
                                     type="text"
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     required
+                                    aria-required="true"
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Brand</label>
+                                <label htmlFor="scent-brand">Brand <span aria-hidden="true">*</span></label>
                                 <input
+                                    id="scent-brand"
                                     type="text"
                                     value={formData.brand}
                                     onChange={e => setFormData({ ...formData, brand: e.target.value })}
                                     required
+                                    aria-required="true"
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Image URL</label>
+                                <label htmlFor="scent-image">Image URL</label>
                                 <input
+                                    id="scent-image"
                                     type="text"
                                     value={formData.image}
                                     onChange={e => setFormData({ ...formData, image: e.target.value })}
                                 />
                             </div>
                             <button type="submit" className="manual-submit-btn" disabled={loading}>
-                                {loading ? 'Adding...' : 'Add to Collection'}
+                                {loading ? (
+                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                                        <Loader2 className="spin" size={18} /> Adding...
+                                    </div>
+                                ) : 'Add to Collection'}
                             </button>
                         </form>
                     )}
