@@ -74,4 +74,10 @@ const LibraryItemSchema = new mongoose.Schema({
     }
 });
 
+// Index for sorting library items by date (newest first)
+LibraryItemSchema.index({ user: 1, createdAt: -1 });
+
+// Index for efficient lookup to prevent duplicates or update status
+LibraryItemSchema.index({ user: 1, googleBookId: 1 });
+
 module.exports = mongoose.model('LibraryItem', LibraryItemSchema);
