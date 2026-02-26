@@ -101,14 +101,22 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                     <p>Grow your shared aromatic library</p>
                 </div>
 
-                <div className="modal-tabs">
+                <div className="modal-tabs" role="tablist">
                     <button
+                        role="tab"
+                        aria-selected={activeTab === 'magic'}
+                        aria-controls="panel-magic"
+                        id="tab-magic"
                         className={activeTab === 'magic' ? 'active' : ''}
                         onClick={() => setActiveTab('magic')}
                     >
                         <LinkIcon size={16} /> Quick Add (Link)
                     </button>
                     <button
+                        role="tab"
+                        aria-selected={activeTab === 'manual'}
+                        aria-controls="panel-manual"
+                        id="tab-manual"
                         className={activeTab === 'manual' ? 'active' : ''}
                         onClick={() => setActiveTab('manual')}
                     >
@@ -118,10 +126,16 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
 
                 <div className="modal-body">
                     {activeTab === 'magic' ? (
-                        <div className="magic-tab-content">
-                            <label>FRAGRANTICA URL</label>
+                        <div
+                            className="magic-tab-content"
+                            role="tabpanel"
+                            id="panel-magic"
+                            aria-labelledby="tab-magic"
+                        >
+                            <label htmlFor="magic-url">FRAGRANTICA URL</label>
                             <div className="magic-input-group">
                                 <input
+                                    id="magic-url"
                                     type="text"
                                     placeholder="https://www.fragrantica.com/perfume/..."
                                     value={magicUrl}
@@ -168,35 +182,51 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                             )}
                         </div>
                     ) : (
-                        <form className="manual-form" onSubmit={handleSubmit}>
+                        <form
+                            className="manual-form"
+                            onSubmit={handleSubmit}
+                            role="tabpanel"
+                            id="panel-manual"
+                            aria-labelledby="tab-manual"
+                        >
                             <div className="form-group">
-                                <label>Name</label>
+                                <label htmlFor="scent-name">Name</label>
                                 <input
+                                    id="scent-name"
                                     type="text"
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     required
+                                    aria-required="true"
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Brand</label>
+                                <label htmlFor="scent-brand">Brand</label>
                                 <input
+                                    id="scent-brand"
                                     type="text"
                                     value={formData.brand}
                                     onChange={e => setFormData({ ...formData, brand: e.target.value })}
                                     required
+                                    aria-required="true"
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Image URL</label>
+                                <label htmlFor="scent-image">Image URL</label>
                                 <input
+                                    id="scent-image"
                                     type="text"
                                     value={formData.image}
                                     onChange={e => setFormData({ ...formData, image: e.target.value })}
                                 />
                             </div>
-                            <button type="submit" className="manual-submit-btn" disabled={loading}>
-                                {loading ? 'Adding...' : 'Add to Collection'}
+                            <button
+                                type="submit"
+                                className="manual-submit-btn"
+                                disabled={loading}
+                                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
+                            >
+                                {loading ? <Loader2 className="spin" size={18} /> : 'Add to Collection'}
                             </button>
                         </form>
                     )}
