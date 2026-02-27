@@ -74,4 +74,10 @@ const LibraryItemSchema = new mongoose.Schema({
     }
 });
 
+// Compound index to optimize the main library feed (filter by user, sort by date)
+LibraryItemSchema.index({ user: 1, createdAt: -1 });
+
+// Compound index to optimize "check if book exists" queries (avoiding duplicates)
+LibraryItemSchema.index({ user: 1, googleBookId: 1 });
+
 module.exports = mongoose.model('LibraryItem', LibraryItemSchema);
