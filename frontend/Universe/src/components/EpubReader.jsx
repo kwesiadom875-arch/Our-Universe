@@ -91,29 +91,29 @@ const EpubReader = ({ url, initialLocation, onClose, onUpdateProgress }) => {
     return (
         <div className="epub-reader-overlay">
             <div className="reader-toolbar">
-                <button className="reader-btn" onClick={() => setShowToc(!showToc)}>
+                <button className="reader-btn" onClick={() => setShowToc(!showToc)} aria-label="Toggle Table of Contents" title="Toggle Table of Contents">
                     <BookOpen size={20} />
                 </button>
                 <div className="reader-settings">
-                    <button className="reader-btn" onClick={() => setFontSize(s => Math.max(80, s - 10))}>A-</button>
+                    <button className="reader-btn" onClick={() => setFontSize(s => Math.max(80, s - 10))} aria-label="Decrease font size" title="Decrease font size">A-</button>
                     <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{fontSize}%</span>
-                    <button className="reader-btn" onClick={() => setFontSize(s => Math.min(150, s + 10))}>A+</button>
+                    <button className="reader-btn" onClick={() => setFontSize(s => Math.min(150, s + 10))} aria-label="Increase font size" title="Increase font size">A+</button>
 
                     <div className="theme-toggles">
-                        <button className={`theme-dot light ${theme === 'light' ? 'active' : ''}`} onClick={() => setTheme('light')} />
-                        <button className={`theme-dot sepia ${theme === 'sepia' ? 'active' : ''}`} onClick={() => setTheme('sepia')} />
-                        <button className={`theme-dot dark ${theme === 'dark' ? 'active' : ''}`} onClick={() => setTheme('dark')} />
+                        <button className={`theme-dot light ${theme === 'light' ? 'active' : ''}`} onClick={() => setTheme('light')} aria-label="Light theme" title="Light theme" />
+                        <button className={`theme-dot sepia ${theme === 'sepia' ? 'active' : ''}`} onClick={() => setTheme('sepia')} aria-label="Sepia theme" title="Sepia theme" />
+                        <button className={`theme-dot dark ${theme === 'dark' ? 'active' : ''}`} onClick={() => setTheme('dark')} aria-label="Dark theme" title="Dark theme" />
                     </div>
                 </div>
-                <button className="reader-btn close-btn" onClick={onClose}>
+                <button className="reader-btn close-btn" onClick={onClose} aria-label="Close reader" title="Close reader">
                     <X size={24} />
                 </button>
             </div>
 
             <div className="reader-content">
-                <button className="nav-btn prev" onClick={handlePrev}><ChevronLeft size={30} /></button>
+                <button className="nav-btn prev" onClick={handlePrev} aria-label="Previous page" title="Previous page"><ChevronLeft size={30} /></button>
                 <div ref={viewerRef} className="epub-viewer" />
-                <button className="nav-btn next" onClick={handleNext}><ChevronRight size={30} /></button>
+                <button className="nav-btn next" onClick={handleNext} aria-label="Next page" title="Next page"><ChevronRight size={30} /></button>
             </div>
 
             {showToc && (
