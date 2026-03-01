@@ -261,7 +261,7 @@ const Timetable = () => {
                         <HeartHandshake size={18} />
                         <span>Sync Hearts</span>
                     </button>
-                    <button className="tt-add-btn" onClick={() => setIsModalOpen(true)}>
+                    <button className="tt-add-btn" onClick={() => setIsModalOpen(true)} aria-label="Add new event">
                         <BookOpen size={18} />
                     </button>
                 </div>
