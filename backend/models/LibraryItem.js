@@ -74,4 +74,10 @@ const LibraryItemSchema = new mongoose.Schema({
     }
 });
 
+// Index for retrieving library items by user, most recently added first
+LibraryItemSchema.index({ user: 1, createdAt: -1 });
+
+// Composite index to prevent duplicate books for the same user and to speed up lookups
+LibraryItemSchema.index({ user: 1, googleBookId: 1 }, { unique: true });
+
 module.exports = mongoose.model('LibraryItem', LibraryItemSchema);
