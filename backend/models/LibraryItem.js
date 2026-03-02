@@ -74,4 +74,10 @@ const LibraryItemSchema = new mongoose.Schema({
     }
 });
 
+// Composite index to prevent duplicate books per user
+LibraryItemSchema.index({ user: 1, googleBookId: 1 }, { unique: true });
+
+// Index for getting a user's library items sorted by newest first
+LibraryItemSchema.index({ user: 1, createdAt: -1 });
+
 module.exports = mongoose.model('LibraryItem', LibraryItemSchema);

@@ -32,4 +32,8 @@ const MilestoneSchema = new mongoose.Schema({
     }
 });
 
+// Compound indexes for frequent queries (Get milestones by user, sorted by date)
+MilestoneSchema.index({ user1: 1, date: 1 });
+MilestoneSchema.index({ user2: 1, date: 1 });
+
 module.exports = mongoose.model('Milestone', MilestoneSchema);

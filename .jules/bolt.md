@@ -1,3 +1,6 @@
 ## 2024-05-22 - Missing Indexes on Core Models
 **Learning:** The `Swipe` collection, which grows linearly with user activity, had no indexes defined. This caused O(n) scans for every `/popular` request (filtering seen items) and every match check. This is a critical scalability bottleneck often overlooked in early prototypes.
 **Action:** Always check schema definitions for indexes on foreign keys (`user`) and frequently queried fields (`tmdbId`, `action`) during initial code review. Use `explain()` (or schema inspection if DB is offline) to verify.
+## 2026-03-02 - Missing Indexes on LibraryItem and Milestone Models
+**Learning:** Both the `LibraryItem` and `Milestone` collections were missing essential indexes. `LibraryItem` lacked an index on `{ user: 1, createdAt: -1 }` for retrieving a user's library and a unique index on `{ user: 1, googleBookId: 1 }` to prevent duplicate entries. `Milestone` lacked indexes on `{ user1: 1, date: 1 }` and `{ user2: 1, date: 1 }` for fetching sorted milestones. These missing indexes would cause O(n) scans and potential data duplication as the database grows.
+**Action:** Always verify that all frequently queried fields, especially foreign keys like `user`, and sorting fields like `createdAt` or `date`, have appropriate compound indexes. Use schema inspection tests to enforce index definitions.
