@@ -947,9 +947,9 @@ const BookLibrary = () => {
                                     </div>
 
                                     <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-                                        <button className="btn-icon"><Bell size={20} /></button>
-                                        <button className="btn-icon"><Moon size={20} /></button>
-                                        <button className="btn-icon" onClick={() => addNotification('info', 'Settings', 'Settings functionality coming soon!')}><Settings size={20} /></button>
+                                        <button className="btn-icon" aria-label="Notifications"><Bell size={20} /></button>
+                                        <button className="btn-icon" aria-label="Toggle Dark Mode"><Moon size={20} /></button>
+                                        <button className="btn-icon" onClick={() => addNotification('info', 'Settings', 'Settings functionality coming soon!')} aria-label="Settings"><Settings size={20} /></button>
                                     </div>
                                 </div>
 
