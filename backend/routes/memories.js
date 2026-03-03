@@ -20,10 +20,12 @@ router.get('/', auth, async (req, res) => {
 
         const query = { user: { $in: userIds } };
 
+        // OPTIMIZATION: Use .lean() to reduce memory footprint and improve performance for read-only queries
         const memories = await Memory.find(query)
             .sort({ createdAt: -1 }) // Sorted by newest first usually makes sense for feeds, was 1 (oldest first) in original but user requested -1. I will use -1 as requested.
             .skip(skip)
-            .limit(limit);
+            .limit(limit)
+            .lean();
 
         const total = await Memory.countDocuments(query);
 

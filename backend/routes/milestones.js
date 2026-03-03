@@ -24,7 +24,8 @@ router.get('/', auth, async (req, res) => {
             };
         }
 
-        const milestones = await Milestone.find(query).sort({ date: 1 });
+        // OPTIMIZATION: Use .lean() to reduce memory footprint and improve performance for read-only queries
+        const milestones = await Milestone.find(query).sort({ date: 1 }).lean();
         res.json(milestones);
     } catch (err) {
         console.error(err.message);
