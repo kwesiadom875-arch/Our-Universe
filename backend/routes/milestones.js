@@ -24,7 +24,9 @@ router.get('/', auth, async (req, res) => {
             };
         }
 
-        const milestones = await Milestone.find(query).sort({ date: 1 });
+        const milestones = await Milestone.find(query)
+            .sort({ date: 1 })
+            .lean(); // OPTIMIZATION: Use .lean() for read-only query to return plain JS objects, reducing memory and improving execution time
         res.json(milestones);
     } catch (err) {
         console.error(err.message);
