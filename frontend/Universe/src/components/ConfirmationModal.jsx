@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, Trash2, AlertTriangle, CheckCircle } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { Trash2, AlertTriangle, CheckCircle } from 'lucide-react';
 import '../styles/confirmationModal.css';
 
 const ConfirmationModal = ({
@@ -13,6 +13,19 @@ const ConfirmationModal = ({
     isDestructive = false,
     type = 'danger' // danger, warning, success
 }) => {
+    const cancelRef = useRef(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            cancelRef.current?.focus();
+            const handleKeyDown = (e) => {
+                if (e.key === 'Escape') onClose();
+            };
+            document.addEventListener('keydown', handleKeyDown);
+            return () => document.removeEventListener('keydown', handleKeyDown);
+        }
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     const getIcon = () => {
@@ -38,14 +51,25 @@ const ConfirmationModal = ({
     };
 
     return (
-        <div className="confirmation-overlay">
-            <div className="confirmation-card">
+        <div
+            className="confirmation-overlay"
+            onClick={onClose}
+            role="presentation"
+        >
+            <div
+                className="confirmation-card"
+                onClick={(e) => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="confirmation-title"
+                aria-describedby="confirmation-message"
+            >
                 <div className="confirmation-icon" style={{ background: getIconBg() }}>
                     {getIcon()}
                 </div>
 
-                <h3 className="confirmation-title">{title}</h3>
-                <p className="confirmation-message">{message}</p>
+                <h3 id="confirmation-title" className="confirmation-title">{title}</h3>
+                <p id="confirmation-message" className="confirmation-message">{message}</p>
 
                 <div className="confirmation-actions">
                     <button
@@ -55,6 +79,7 @@ const ConfirmationModal = ({
                         {confirmText}
                     </button>
                     <button
+                        ref={cancelRef}
                         className="action-btn cancel-btn"
                         onClick={onClose}
                     >
