@@ -15,7 +15,8 @@ router.get('/', auth, async (req, res) => {
         }
 
         // Sort by day and start time could be complex, for now just return all
-        const classes = await Timetable.find({ user: { $in: userIds } });
+        const classes = await Timetable.find({ user: { $in: userIds } })
+            .lean(); // OPTIMIZATION: Use .lean() for read-only query to return plain JS objects, reducing memory and improving execution time
         res.json(classes);
     } catch (err) {
         console.error(err.message);
