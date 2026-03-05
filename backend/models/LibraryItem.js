@@ -74,4 +74,8 @@ const LibraryItemSchema = new mongoose.Schema({
     }
 });
 
+// Indexes for performance
+LibraryItemSchema.index({ user: 1, createdAt: -1 }); // Used for default library sorting
+LibraryItemSchema.index({ user: 1, googleBookId: 1 }, { unique: true }); // Prevent duplicate books per user
+
 module.exports = mongoose.model('LibraryItem', LibraryItemSchema);
