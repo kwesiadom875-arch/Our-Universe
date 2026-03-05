@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X, Trash2, AlertTriangle, CheckCircle } from 'lucide-react';
 import '../styles/confirmationModal.css';
 
@@ -13,18 +13,39 @@ const ConfirmationModal = ({
     isDestructive = false,
     type = 'danger' // danger, warning, success
 }) => {
+    const cancelRef = useRef(null);
+
+    // Focus cancel button on open
+    useEffect(() => {
+        if (isOpen && cancelRef.current) {
+            cancelRef.current.focus();
+        }
+    }, [isOpen]);
+
+    // Handle Escape key
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && isOpen) {
+                onClose();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     const getIcon = () => {
         switch (type) {
             case 'danger':
-                return <Trash2 size={24} color="#ff3366" />;
+                return <Trash2 size={24} color="#ff3366" aria-hidden="true" />;
             case 'warning':
-                return <AlertTriangle size={24} color="#f59e0b" />;
+                return <AlertTriangle size={24} color="#f59e0b" aria-hidden="true" />;
             case 'success':
-                return <CheckCircle size={24} color="#10b981" />;
+                return <CheckCircle size={24} color="#10b981" aria-hidden="true" />;
             default:
-                return <Trash2 size={24} color="#ff3366" />;
+                return <Trash2 size={24} color="#ff3366" aria-hidden="true" />;
         }
     };
 
@@ -37,15 +58,28 @@ const ConfirmationModal = ({
         }
     };
 
+    const handleOverlayClick = (e) => {
+        if (e.target === e.currentTarget) {
+            onClose();
+        }
+    };
+
     return (
-        <div className="confirmation-overlay">
+        <div
+            className="confirmation-overlay"
+            onClick={handleOverlayClick}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="confirmation-title"
+            aria-describedby="confirmation-message"
+        >
             <div className="confirmation-card">
                 <div className="confirmation-icon" style={{ background: getIconBg() }}>
                     {getIcon()}
                 </div>
 
-                <h3 className="confirmation-title">{title}</h3>
-                <p className="confirmation-message">{message}</p>
+                <h3 id="confirmation-title" className="confirmation-title">{title}</h3>
+                <p id="confirmation-message" className="confirmation-message">{message}</p>
 
                 <div className="confirmation-actions">
                     <button
@@ -55,6 +89,7 @@ const ConfirmationModal = ({
                         {confirmText}
                     </button>
                     <button
+                        ref={cancelRef}
                         className="action-btn cancel-btn"
                         onClick={onClose}
                     >
