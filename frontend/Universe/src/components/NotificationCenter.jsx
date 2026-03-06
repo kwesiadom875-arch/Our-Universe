@@ -66,12 +66,16 @@ const NotificationCenter = () => {
 
     return (
         <>
-            <div
+            <button
                 className="notification-bell-container"
                 onClick={togglePanel}
+                aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
                 title="Notifications"
+                style={{ background: 'none', border: 'none', padding: 0 }}
             >
-                <Bell size={24} color="#555" />
+                <div style={{ padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Bell size={24} color="#555" />
+                </div>
                 {unreadCount > 0 && (
                     <motion.span
                         className="notification-badge"
@@ -82,7 +86,7 @@ const NotificationCenter = () => {
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </motion.span>
                 )}
-            </div>
+            </button>
 
             <AnimatePresence>
                 {isOpen && (
