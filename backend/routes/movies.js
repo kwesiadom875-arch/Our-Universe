@@ -17,7 +17,7 @@ router.get('/popular', auth, async (req, res) => {
         const userIds = [req.user.id];
         if (user.partnerId) userIds.push(user.partnerId);
 
-        const userSwipes = await Swipe.find({ user: { $in: userIds } }).select('tmdbId');
+        const userSwipes = await Swipe.find({ user: { $in: userIds } }).select('tmdbId').lean(); // PERFORMANCE: Use .lean() for faster read-only queries
         const seenMovieIds = new Set(userSwipes.map(s => s.tmdbId));
 
         let candidateMovies = [];
@@ -122,7 +122,7 @@ router.post('/swipe', auth, async (req, res) => {
 router.get('/matches', auth, async (req, res) => {
     try {
         // 1. Get all my likes
-        const myLikes = await Swipe.find({ user: req.user.id, action: 'like' });
+        const myLikes = await Swipe.find({ user: req.user.id, action: 'like' }).lean(); // PERFORMANCE: Use .lean() for faster read-only queries
         const myLikedIds = myLikes.map(s => s.tmdbId);
 
         if (myLikedIds.length === 0) return res.json([]);
@@ -136,13 +136,13 @@ router.get('/matches', auth, async (req, res) => {
                 tmdbId: { $in: myLikedIds },
                 action: 'like',
                 user: user.partnerId
-            });
+            }).lean(); // PERFORMANCE: Use .lean() for faster read-only queries
         } else {
             matches = await Swipe.find({
                 tmdbId: { $in: myLikedIds },
                 action: 'like',
                 user: { $ne: req.user.id }
-            });
+            }).lean(); // PERFORMANCE: Use .lean() for faster read-only queries
         }
 
         // Deduplicate matches (if multiple people matched, though currently 1-1)
