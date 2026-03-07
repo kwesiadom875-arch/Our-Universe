@@ -66,10 +66,14 @@ const NotificationCenter = () => {
 
     return (
         <>
-            <div
+            <button
+                type="button"
                 className="notification-bell-container"
                 onClick={togglePanel}
                 title="Notifications"
+                aria-label="Notifications"
+                aria-expanded={isOpen}
+                style={{ background: 'none', border: 'none', padding: 0 }}
             >
                 <Bell size={24} color="#555" />
                 {unreadCount > 0 && (
@@ -82,7 +86,7 @@ const NotificationCenter = () => {
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </motion.span>
                 )}
-            </div>
+            </button>
 
             <AnimatePresence>
                 {isOpen && (
@@ -100,7 +104,11 @@ const NotificationCenter = () => {
                                 {unreadCount > 0 && <span>{unreadCount} New Stellar Updates</span>}
                             </div>
                             {notifications.length > 0 && (
-                                <button className="clear-all-btn" onClick={clearAll}>
+                                <button
+                                    className="clear-all-btn"
+                                    onClick={clearAll}
+                                    aria-label="Clear all notifications"
+                                >
                                     Clear All
                                 </button>
                             )}
@@ -134,6 +142,7 @@ const NotificationCenter = () => {
                                                     className="action-btn"
                                                     onClick={(e) => handleMarkAsRead(notif.id, e)}
                                                     title="Mark as read"
+                                                    aria-label="Mark as read"
                                                 >
                                                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ff3366' }}></div>
                                                 </button>
