@@ -28,6 +28,18 @@ const Calendar = () => {
 
     const { title, date, startTime, endTime, description } = eventData;
 
+    // Handle Escape key to close modal
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && isModalOpen) {
+                setIsModalOpen(false);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isModalOpen]);
+
     // Fetch Events when token or month changes (optimization: fetch all for now)
     useEffect(() => {
         const fetchEvents = async () => {
@@ -176,7 +188,7 @@ const Calendar = () => {
 
                 {/* Modal - Reusing styles from Timetable/Calendar CSS */}
                 {isModalOpen && (
-                    <div className="modal-overlay">
+                    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setIsModalOpen(false)}>
                         <div className="modal-content light-theme">
                             <div className="modal-header">
                                 <h2>Add New Event</h2>
