@@ -43,7 +43,8 @@ router.post('/add', auth, async (req, res) => {
 // @access  Private
 router.get('/watched', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        // Optimize: Use .select('partnerId').lean() to avoid fetching entire User document
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
