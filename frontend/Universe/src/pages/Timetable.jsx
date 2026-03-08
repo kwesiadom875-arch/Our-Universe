@@ -28,6 +28,19 @@ const Timetable = () => {
         endTime: ''
     });
 
+    // Handle Escape key to close modals
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                if (isModalOpen) setIsModalOpen(false);
+                if (showFreeTime) setShowFreeTime(false);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isModalOpen, showFreeTime]);
+
     // Fetch Classes
     useEffect(() => {
         const fetchClasses = async () => {
