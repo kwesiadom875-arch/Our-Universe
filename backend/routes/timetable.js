@@ -8,7 +8,8 @@ const Timetable = require('../models/Timetable');
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
-        const user = await require('../models/User').findById(req.user.id);
+        // Optimize: Use .select('partnerId').lean() to avoid fetching entire User document
+        const user = await require('../models/User').findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);

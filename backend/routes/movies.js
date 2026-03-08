@@ -13,7 +13,8 @@ router.get('/popular', auth, async (req, res) => {
         const API_KEY = process.env.TMDB_API_KEY;
 
         // 1. Get IDs of movies the user (and partner) has already swiped on
-        const user = await User.findById(req.user.id);
+        // Optimize: Use .select('partnerId').lean() to avoid fetching entire User document
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
         if (user.partnerId) userIds.push(user.partnerId);
 
@@ -85,7 +86,8 @@ router.post('/swipe', auth, async (req, res) => {
         }
 
         // 3. If it's a LIKE, check if partner liked it
-        const user = await User.findById(req.user.id);
+        // Optimize: Use .select('partnerId').lean() to avoid fetching entire User document
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         let potentialMatch = null;
 
         if (user.partnerId) {
@@ -128,7 +130,8 @@ router.get('/matches', auth, async (req, res) => {
         if (myLikedIds.length === 0) return res.json([]);
 
         // 2. Find which of these movies have ALSO been liked by others (partner)
-        const user = await User.findById(req.user.id);
+        // Optimize: Use .select('partnerId').lean() to avoid fetching entire User document
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         let matches = [];
 
         if (user.partnerId) {
