@@ -43,13 +43,15 @@ router.post('/add', auth, async (req, res) => {
 // @access  Private
 router.get('/watched', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        // Bolt: Optimize user fetch for partnerId check
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
         }
 
-        const items = await MediaItem.find({ user: { $in: userIds } }).sort({ dateAdded: -1 });
+        // Bolt: Add lean() for read-only query
+        const items = await MediaItem.find({ user: { $in: userIds } }).sort({ dateAdded: -1 }).lean();
         res.json(items);
     } catch (err) {
         console.error(err.message);
@@ -97,8 +99,9 @@ router.get('/popular', auth, async (req, res) => {
         // Let's exclude BOTH.
 
         const [swipes, watched] = await Promise.all([
-            Swipe.find({ user: req.user.id }).select('tmdbId'),
-            MediaItem.find({ user: req.user.id, mediaType }).select('tmdbId')
+            // Bolt: Add lean() for read-only query
+            Swipe.find({ user: req.user.id }).select('tmdbId').lean(),
+            MediaItem.find({ user: req.user.id, mediaType }).select('tmdbId').lean()
         ]);
 
         const seenIds = new Set([
@@ -144,7 +147,8 @@ router.get('/popular', auth, async (req, res) => {
 router.get('/recommendations', auth, async (req, res) => {
     try {
         // 1. Get user's watched list
-        const watchedItems = await MediaItem.find({ user: req.user.id });
+        // Bolt: Add lean() for read-only query
+        const watchedItems = await MediaItem.find({ user: req.user.id }).lean();
 
         if (watchedItems.length === 0) {
             // Fallback to top rated if nothing watched
