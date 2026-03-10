@@ -1,3 +1,7 @@
 ## 2024-05-22 - Missing Indexes on Core Models
 **Learning:** The `Swipe` collection, which grows linearly with user activity, had no indexes defined. This caused O(n) scans for every `/popular` request (filtering seen items) and every match check. This is a critical scalability bottleneck often overlooked in early prototypes.
 **Action:** Always check schema definitions for indexes on foreign keys (`user`) and frequently queried fields (`tmdbId`, `action`) during initial code review. Use `explain()` (or schema inspection if DB is offline) to verify.
+
+## 2025-03-10 - Missing Mongoose read-only query optimizations
+**Learning:** Mongoose read-only queries in routes such as `api/media` and `api/movies` returned full Mongoose documents containing change-tracking and internal properties, resulting in unneeded DB transfer overhead. Furthermore, full `User` documents were being instantiated solely to check for the `partnerId` property.
+**Action:** When performing Mongoose queries strictly for read-only purposes (e.g., GET endpoints or filtering lists), append `.lean()` to the queries to return plain JavaScript objects. When checking for specific fields like `partnerId`, append `.select('partnerId')` to minimize DB payload size.
