@@ -43,12 +43,14 @@ router.post('/add', auth, async (req, res) => {
 // @access  Private
 router.get('/watched', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        // Optimization: use .select('partnerId').lean() to minimize db load since we only need partnerId
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
         }
 
+        // Optimization: removed .lean() as frontend might depend on mongoose .toJSON() transforms
         const items = await MediaItem.find({ user: { $in: userIds } }).sort({ dateAdded: -1 });
         res.json(items);
     } catch (err) {
@@ -97,8 +99,9 @@ router.get('/popular', auth, async (req, res) => {
         // Let's exclude BOTH.
 
         const [swipes, watched] = await Promise.all([
-            Swipe.find({ user: req.user.id }).select('tmdbId'),
-            MediaItem.find({ user: req.user.id, mediaType }).select('tmdbId')
+            // Optimization: use .lean() for read-only queries fetching just IDs
+            Swipe.find({ user: req.user.id }).select('tmdbId').lean(),
+            MediaItem.find({ user: req.user.id, mediaType }).select('tmdbId').lean()
         ]);
 
         const seenIds = new Set([
@@ -144,7 +147,8 @@ router.get('/popular', auth, async (req, res) => {
 router.get('/recommendations', auth, async (req, res) => {
     try {
         // 1. Get user's watched list
-        const watchedItems = await MediaItem.find({ user: req.user.id });
+        // Optimization: use .lean() for read-only query since only ids are needed locally
+        const watchedItems = await MediaItem.find({ user: req.user.id }).lean();
 
         if (watchedItems.length === 0) {
             // Fallback to top rated if nothing watched
