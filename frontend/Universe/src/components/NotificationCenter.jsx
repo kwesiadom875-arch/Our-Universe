@@ -11,7 +11,7 @@ const NotificationCenter = () => {
 
     const unreadCount = notifications.filter(n => !n.read).length;
 
-    // Close panel when clicking outside
+    // Close panel when clicking outside or pressing Escape
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (panelRef.current && !panelRef.current.contains(event.target) && !event.target.closest('.notification-bell-container')) {
@@ -19,9 +19,18 @@ const NotificationCenter = () => {
             }
         };
 
+        const handleEscape = (event) => {
+            if (event.key === 'Escape') {
+                setIsOpen(false);
+            }
+        };
+
         document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('keydown', handleEscape);
+
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleEscape);
         };
     }, []);
 
@@ -66,10 +75,12 @@ const NotificationCenter = () => {
 
     return (
         <>
-            <div
+            <button
                 className="notification-bell-container"
                 onClick={togglePanel}
                 title="Notifications"
+                aria-label="Notifications"
+                aria-expanded={isOpen}
             >
                 <Bell size={24} color="#555" />
                 {unreadCount > 0 && (
@@ -82,7 +93,7 @@ const NotificationCenter = () => {
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </motion.span>
                 )}
-            </div>
+            </button>
 
             <AnimatePresence>
                 {isOpen && (
