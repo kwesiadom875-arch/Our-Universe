@@ -302,7 +302,7 @@ router.get('/invite-code', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
 
-        if (user.partnerId) {
+        if (user && user.partnerId) {
             return res.status(400).json({ msg: 'You are already linked with a partner' });
         }
 

@@ -12,9 +12,10 @@ router.get('/', auth, async (req, res) => {
         const limit = parseInt(req.query.limit) || 20;
         const skip = (page - 1) * limit;
 
-        const user = await require('../models/User').findById(req.user.id);
+        // ⚡ Bolt: Optimize partnerId lookup to avoid fetching the full user document
+        const user = await require('../models/User').findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
-        if (user.partnerId) {
+        if (user && user.partnerId) {
             userIds.push(user.partnerId);
         }
 
