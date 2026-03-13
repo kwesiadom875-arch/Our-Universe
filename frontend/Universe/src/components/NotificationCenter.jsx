@@ -66,10 +66,14 @@ const NotificationCenter = () => {
 
     return (
         <>
-            <div
+            <button
                 className="notification-bell-container"
                 onClick={togglePanel}
                 title="Notifications"
+                aria-label="Notifications"
+                aria-expanded={isOpen}
+                aria-haspopup="dialog"
+                aria-controls="notification-panel"
             >
                 <Bell size={24} color="#555" />
                 {unreadCount > 0 && (
@@ -82,11 +86,14 @@ const NotificationCenter = () => {
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </motion.span>
                 )}
-            </div>
+            </button>
 
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
+                        id="notification-panel"
+                        role="dialog"
+                        aria-labelledby="notification-header-title"
                         className="notification-panel"
                         ref={panelRef}
                         initial={{ opacity: 0, y: -20, scale: 0.95 }}
@@ -96,7 +103,7 @@ const NotificationCenter = () => {
                     >
                         <div className="notification-header">
                             <div>
-                                <h3>Universe Pulse</h3>
+                                <h3 id="notification-header-title">Universe Pulse</h3>
                                 {unreadCount > 0 && <span>{unreadCount} New Stellar Updates</span>}
                             </div>
                             {notifications.length > 0 && (
