@@ -8,16 +8,14 @@ const Timetable = require('../models/Timetable');
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
-        // ⚡ Bolt: Fetch only partnerId and use .lean() to bypass Mongoose document instantiation for read-only query
-        const user = await require('../models/User').findById(req.user.id).select('partnerId').lean();
+        const user = await require('../models/User').findById(req.user.id);
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
         }
 
         // Sort by day and start time could be complex, for now just return all
-        // ⚡ Bolt: Use .lean() to bypass Mongoose document instantiation for read-only query
-        const classes = await Timetable.find({ user: { $in: userIds } }).lean();
+        const classes = await Timetable.find({ user: { $in: userIds } });
         res.json(classes);
     } catch (err) {
         console.error(err.message);

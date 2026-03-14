@@ -43,15 +43,13 @@ router.post('/add', auth, async (req, res) => {
 // @access  Private
 router.get('/watched', auth, async (req, res) => {
     try {
-        // ⚡ Bolt: Fetch only partnerId and use .lean() to bypass Mongoose document instantiation for read-only query
-        const user = await User.findById(req.user.id).select('partnerId').lean();
+        const user = await User.findById(req.user.id);
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
         }
 
-        // ⚡ Bolt: Use .lean() to bypass Mongoose document instantiation for read-only query
-        const items = await MediaItem.find({ user: { $in: userIds } }).sort({ dateAdded: -1 }).lean();
+        const items = await MediaItem.find({ user: { $in: userIds } }).sort({ dateAdded: -1 });
         res.json(items);
     } catch (err) {
         console.error(err.message);
@@ -99,10 +97,8 @@ router.get('/popular', auth, async (req, res) => {
         // Let's exclude BOTH.
 
         const [swipes, watched] = await Promise.all([
-            // ⚡ Bolt: Use .lean() to bypass Mongoose document instantiation for read-only query
-            Swipe.find({ user: req.user.id }).select('tmdbId').lean(),
-            // ⚡ Bolt: Use .lean() to bypass Mongoose document instantiation for read-only query
-            MediaItem.find({ user: req.user.id, mediaType }).select('tmdbId').lean()
+            Swipe.find({ user: req.user.id }).select('tmdbId'),
+            MediaItem.find({ user: req.user.id, mediaType }).select('tmdbId')
         ]);
 
         const seenIds = new Set([
@@ -148,8 +144,7 @@ router.get('/popular', auth, async (req, res) => {
 router.get('/recommendations', auth, async (req, res) => {
     try {
         // 1. Get user's watched list
-        // ⚡ Bolt: Use .lean() to bypass Mongoose document instantiation for read-only query
-        const watchedItems = await MediaItem.find({ user: req.user.id }).lean();
+        const watchedItems = await MediaItem.find({ user: req.user.id });
 
         if (watchedItems.length === 0) {
             // Fallback to top rated if nothing watched

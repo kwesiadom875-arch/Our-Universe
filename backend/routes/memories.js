@@ -12,8 +12,7 @@ router.get('/', auth, async (req, res) => {
         const limit = parseInt(req.query.limit) || 20;
         const skip = (page - 1) * limit;
 
-        // ⚡ Bolt: Fetch only partnerId and use .lean() to bypass Mongoose document instantiation for read-only query
-        const user = await require('../models/User').findById(req.user.id).select('partnerId').lean();
+        const user = await require('../models/User').findById(req.user.id);
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
@@ -21,12 +20,10 @@ router.get('/', auth, async (req, res) => {
 
         const query = { user: { $in: userIds } };
 
-        // ⚡ Bolt: Use .lean() to bypass Mongoose document instantiation for read-only query
         const memories = await Memory.find(query)
             .sort({ createdAt: -1 }) // Sorted by newest first usually makes sense for feeds, was 1 (oldest first) in original but user requested -1. I will use -1 as requested.
             .skip(skip)
-            .limit(limit)
-            .lean();
+            .limit(limit);
 
         const total = await Memory.countDocuments(query);
 
