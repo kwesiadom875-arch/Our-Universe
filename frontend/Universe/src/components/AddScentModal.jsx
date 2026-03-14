@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import AuthContext from '../context/AuthContext';
@@ -22,6 +22,16 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
         season: 'All',
         image: ''
     });
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && isOpen) {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
 
     if (!isOpen) return null;
 
@@ -85,6 +95,9 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
             <div className="media-modal-backdrop" onClick={onClose} />
             <motion.div
                 className="add-scent-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="add-scent-modal-title"
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -97,20 +110,28 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                     <div className="magic-wand-icon">
                         <Wand2 size={24} color="#F59E0B" />
                     </div>
-                    <h2>Add Scent <span>Magic</span></h2>
+                    <h2 id="add-scent-modal-title">Add Scent <span>Magic</span></h2>
                     <p>Grow your shared aromatic library</p>
                 </div>
 
-                <div className="modal-tabs">
+                <div className="modal-tabs" role="tablist">
                     <button
                         className={activeTab === 'magic' ? 'active' : ''}
                         onClick={() => setActiveTab('magic')}
+                        role="tab"
+                        aria-selected={activeTab === 'magic'}
+                        aria-controls="magic-tab-panel"
+                        id="magic-tab"
                     >
                         <LinkIcon size={16} /> Quick Add (Link)
                     </button>
                     <button
                         className={activeTab === 'manual' ? 'active' : ''}
                         onClick={() => setActiveTab('manual')}
+                        role="tab"
+                        aria-selected={activeTab === 'manual'}
+                        aria-controls="manual-tab-panel"
+                        id="manual-tab"
                     >
                         <Edit3 size={16} /> Manual Add
                     </button>
@@ -118,10 +139,11 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
 
                 <div className="modal-body">
                     {activeTab === 'magic' ? (
-                        <div className="magic-tab-content">
-                            <label>FRAGRANTICA URL</label>
+                        <div className="magic-tab-content" role="tabpanel" id="magic-tab-panel" aria-labelledby="magic-tab">
+                            <label htmlFor="magicUrlInput">FRAGRANTICA URL</label>
                             <div className="magic-input-group">
                                 <input
+                                    id="magicUrlInput"
                                     type="text"
                                     placeholder="https://www.fragrantica.com/perfume/..."
                                     value={magicUrl}
@@ -168,10 +190,11 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                             )}
                         </div>
                     ) : (
-                        <form className="manual-form" onSubmit={handleSubmit}>
+                        <form className="manual-form" onSubmit={handleSubmit} role="tabpanel" id="manual-tab-panel" aria-labelledby="manual-tab">
                             <div className="form-group">
-                                <label>Name</label>
+                                <label htmlFor="scentName">Name</label>
                                 <input
+                                    id="scentName"
                                     type="text"
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -179,8 +202,9 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Brand</label>
+                                <label htmlFor="scentBrand">Brand</label>
                                 <input
+                                    id="scentBrand"
                                     type="text"
                                     value={formData.brand}
                                     onChange={e => setFormData({ ...formData, brand: e.target.value })}
@@ -188,8 +212,9 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Image URL</label>
+                                <label htmlFor="scentImageUrl">Image URL</label>
                                 <input
+                                    id="scentImageUrl"
                                     type="text"
                                     value={formData.image}
                                     onChange={e => setFormData({ ...formData, image: e.target.value })}
