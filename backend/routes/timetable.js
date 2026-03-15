@@ -8,7 +8,8 @@ const Timetable = require('../models/Timetable');
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
-        const user = await require('../models/User').findById(req.user.id);
+        // ⚡ Bolt: Fetch only required partnerId field and use lean() for performance
+        const user = await require('../models/User').findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
