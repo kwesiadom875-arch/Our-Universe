@@ -12,6 +12,21 @@ const NotificationCenter = () => {
     const unreadCount = notifications.filter(n => !n.read).length;
 
     // Close panel when clicking outside
+    // Handle Escape key to close panel
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && isOpen) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen]);
+
+    // Close panel when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (panelRef.current && !panelRef.current.contains(event.target) && !event.target.closest('.notification-bell-container')) {
@@ -66,10 +81,13 @@ const NotificationCenter = () => {
 
     return (
         <>
-            <div
+            <button
                 className="notification-bell-container"
                 onClick={togglePanel}
                 title="Notifications"
+                aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}
+                aria-expanded={isOpen}
+                aria-haspopup="dialog"
             >
                 <Bell size={24} color="#555" />
                 {unreadCount > 0 && (
@@ -82,7 +100,7 @@ const NotificationCenter = () => {
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </motion.span>
                 )}
-            </div>
+            </button>
 
             <AnimatePresence>
                 {isOpen && (

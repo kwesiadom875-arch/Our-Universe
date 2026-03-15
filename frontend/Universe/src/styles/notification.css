@@ -1,6 +1,8 @@
 /* Notification Center & Bubbles */
 
 .notification-bell-container {
+    background: transparent;
+    border: none;
     position: relative;
     cursor: pointer;
     padding: 8px;
@@ -13,6 +15,11 @@
 
 .notification-bell-container:hover {
     background-color: rgba(0, 0, 0, 0.05);
+}
+
+.notification-bell-container:focus-visible {
+    outline: 2px solid #ff3366;
+    outline-offset: 2px;
 }
 
 .notification-badge {
