@@ -43,7 +43,8 @@ router.post('/add', auth, async (req, res) => {
 // @access  Private
 router.get('/watched', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        // ⚡ Bolt: Fetch only required partnerId field and use lean() for performance
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
