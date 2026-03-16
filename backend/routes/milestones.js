@@ -9,7 +9,8 @@ const User = require('../models/User');
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        // ⚡ Bolt: Use .select() and .lean() to only fetch required partnerId
+        const user = await User.findById(req.user.id).select('partnerId').lean();
 
         let query = { $or: [{ user1: req.user.id }, { user2: req.user.id }] };
 
@@ -24,7 +25,8 @@ router.get('/', auth, async (req, res) => {
             };
         }
 
-        const milestones = await Milestone.find(query).sort({ date: 1 });
+        // ⚡ Bolt: Use .lean() to reduce memory footprint on read-only query
+        const milestones = await Milestone.find(query).sort({ date: 1 }).lean();
         res.json(milestones);
     } catch (err) {
         console.error(err.message);

@@ -13,11 +13,13 @@ router.get('/popular', auth, async (req, res) => {
         const API_KEY = process.env.TMDB_API_KEY;
 
         // 1. Get IDs of movies the user (and partner) has already swiped on
-        const user = await User.findById(req.user.id);
+        // ⚡ Bolt: Fetch only partnerId to optimize database query payload
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
         if (user.partnerId) userIds.push(user.partnerId);
 
-        const userSwipes = await Swipe.find({ user: { $in: userIds } }).select('tmdbId');
+        // ⚡ Bolt: Append .lean() for read-only array query
+        const userSwipes = await Swipe.find({ user: { $in: userIds } }).select('tmdbId').lean();
         const seenMovieIds = new Set(userSwipes.map(s => s.tmdbId));
 
         let candidateMovies = [];
@@ -85,15 +87,17 @@ router.post('/swipe', auth, async (req, res) => {
         }
 
         // 3. If it's a LIKE, check if partner liked it
-        const user = await User.findById(req.user.id);
+        // ⚡ Bolt: Use .select('partnerId').lean() since we only need partnerId
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         let potentialMatch = null;
 
         if (user.partnerId) {
+            // ⚡ Bolt: Append .lean() for read-only object query optimization
             potentialMatch = await Swipe.findOne({
                 tmdbId,
                 action: 'like',
                 user: user.partnerId
-            });
+            }).lean();
         } else {
             // Fallback: check ANY other user (for demo purposes if no partner linked)
             potentialMatch = await Swipe.findOne({
@@ -128,21 +132,24 @@ router.get('/matches', auth, async (req, res) => {
         if (myLikedIds.length === 0) return res.json([]);
 
         // 2. Find which of these movies have ALSO been liked by others (partner)
-        const user = await User.findById(req.user.id);
+        // ⚡ Bolt: Fetch only required partnerId to avoid Mongoose overhead
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         let matches = [];
 
         if (user.partnerId) {
+            // ⚡ Bolt: Append .lean() for read-only array memory optimization
             matches = await Swipe.find({
                 tmdbId: { $in: myLikedIds },
                 action: 'like',
                 user: user.partnerId
-            });
+            }).lean();
         } else {
+            // ⚡ Bolt: Append .lean() for read-only array memory optimization
             matches = await Swipe.find({
                 tmdbId: { $in: myLikedIds },
                 action: 'like',
                 user: { $ne: req.user.id }
-            });
+            }).lean();
         }
 
         // Deduplicate matches (if multiple people matched, though currently 1-1)

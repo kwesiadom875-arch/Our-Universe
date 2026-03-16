@@ -43,13 +43,15 @@ router.post('/add', auth, async (req, res) => {
 // @access  Private
 router.get('/watched', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        // ⚡ Bolt: Use .select('partnerId').lean() to bypass full document load
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
         }
 
-        const items = await MediaItem.find({ user: { $in: userIds } }).sort({ dateAdded: -1 });
+        // ⚡ Bolt: Append .lean() for read-only query memory optimization
+        const items = await MediaItem.find({ user: { $in: userIds } }).sort({ dateAdded: -1 }).lean();
         res.json(items);
     } catch (err) {
         console.error(err.message);
