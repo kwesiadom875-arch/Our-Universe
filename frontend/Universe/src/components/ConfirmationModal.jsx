@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X, Trash2, AlertTriangle, CheckCircle } from 'lucide-react';
 import '../styles/confirmationModal.css';
 
@@ -37,15 +37,39 @@ const ConfirmationModal = ({
         }
     };
 
+    // Close on Escape key press
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && isOpen) {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
+
+    // Handle overlay click to close
+    const handleOverlayClick = (e) => {
+        if (e.target === e.currentTarget) {
+            onClose();
+        }
+    };
+
     return (
-        <div className="confirmation-overlay">
-            <div className="confirmation-card">
+        <div className="confirmation-overlay" onClick={handleOverlayClick}>
+            <div
+                className="confirmation-card"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="confirmation-modal-title"
+                aria-describedby="confirmation-modal-message"
+            >
                 <div className="confirmation-icon" style={{ background: getIconBg() }}>
                     {getIcon()}
                 </div>
 
-                <h3 className="confirmation-title">{title}</h3>
-                <p className="confirmation-message">{message}</p>
+                <h3 id="confirmation-modal-title" className="confirmation-title">{title}</h3>
+                <p id="confirmation-modal-message" className="confirmation-message">{message}</p>
 
                 <div className="confirmation-actions">
                     <button
