@@ -11,7 +11,7 @@ const NotificationCenter = () => {
 
     const unreadCount = notifications.filter(n => !n.read).length;
 
-    // Close panel when clicking outside
+    // Close panel when clicking outside or pressing Escape
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (panelRef.current && !panelRef.current.contains(event.target) && !event.target.closest('.notification-bell-container')) {
@@ -19,14 +19,29 @@ const NotificationCenter = () => {
             }
         };
 
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape' && isOpen) {
+                setIsOpen(false);
+            }
+        };
+
         document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('keydown', handleKeyDown);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleKeyDown);
         };
-    }, []);
+    }, [isOpen]);
 
     const togglePanel = () => {
         setIsOpen(!isOpen);
+    };
+
+    const handleKeyDownToggle = (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            togglePanel();
+        }
     };
 
     const handleMarkAsRead = (id, e) => {
@@ -69,6 +84,12 @@ const NotificationCenter = () => {
             <div
                 className="notification-bell-container"
                 onClick={togglePanel}
+                onKeyDown={handleKeyDownToggle}
+                role="button"
+                tabIndex={0}
+                aria-haspopup="dialog"
+                aria-expanded={isOpen}
+                aria-label="Notifications"
                 title="Notifications"
             >
                 <Bell size={24} color="#555" />
@@ -89,6 +110,9 @@ const NotificationCenter = () => {
                     <motion.div
                         className="notification-panel"
                         ref={panelRef}
+                        role="dialog"
+                        aria-label="Notification Center"
+                        aria-modal="true"
                         initial={{ opacity: 0, y: -20, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -20, scale: 0.95 }}
