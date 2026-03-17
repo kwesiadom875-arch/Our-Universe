@@ -9,7 +9,7 @@ const User = require('../models/User');
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        const user = await User.findById(req.user.id).select('partnerId').lean(); // ⚡ Bolt: Fetch only partnerId with .lean() to reduce DB transfer load and memory usage
 
         let query = { $or: [{ user1: req.user.id }, { user2: req.user.id }] };
 
@@ -39,7 +39,7 @@ router.post('/', auth, async (req, res) => {
     const { title, date, icon, description } = req.body;
 
     try {
-        const user = await User.findById(req.user.id);
+        const user = await User.findById(req.user.id).select('partnerId').lean(); // ⚡ Bolt: Fetch only partnerId with .lean() to reduce DB transfer load and memory usage
 
         const newMilestone = new Milestone({
             user1: req.user.id,
