@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import AuthContext from '../context/AuthContext';
@@ -13,6 +13,22 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
     const [magicUrl, setMagicUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [fetchedData, setFetchedData] = useState(null);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            window.addEventListener('keydown', handleKeyDown);
+        }
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen, onClose]);
 
     // Manual Form State
     const [formData, setFormData] = useState({
@@ -88,6 +104,9 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="add-scent-modal-title"
             >
                 <button className="modal-close-btn" onClick={onClose} aria-label="Close modal">
                     <X size={24} />
@@ -97,7 +116,7 @@ const AddScentModal = ({ isOpen, onClose, onAdd }) => {
                     <div className="magic-wand-icon">
                         <Wand2 size={24} color="#F59E0B" />
                     </div>
-                    <h2>Add Scent <span>Magic</span></h2>
+                    <h2 id="add-scent-modal-title">Add Scent <span>Magic</span></h2>
                     <p>Grow your shared aromatic library</p>
                 </div>
 

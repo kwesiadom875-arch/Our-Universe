@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import AuthContext from '../context/AuthContext';
@@ -14,6 +14,22 @@ const MediaSearchModal = ({ isOpen, onClose, onAdd }) => {
     const [results, setResults] = useState([]);
     const [type, setType] = useState('movie'); // 'movie' or 'tv'
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            window.addEventListener('keydown', handleKeyDown);
+        }
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen, onClose]);
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -66,9 +82,12 @@ const MediaSearchModal = ({ isOpen, onClose, onAdd }) => {
                     initial={{ scale: 0.9, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="media-search-modal-title"
                 >
                     <div className="modal-header">
-                        <h2>Add Watched Content</h2>
+                        <h2 id="media-search-modal-title">Add Watched Content</h2>
                         <button className="close-btn" onClick={onClose} aria-label="Close modal"><X size={24} /></button>
                     </div>
 
