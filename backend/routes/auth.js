@@ -45,11 +45,17 @@ router.post('/register', authLimiter, async (req, res) => {
         }
 
         // Generate unique invite code
-        let inviteCode = generateInviteCode();
-        let codeExists = await User.findOne({ inviteCode });
-        while (codeExists) {
-            inviteCode = generateInviteCode();
-            codeExists = await User.findOne({ inviteCode });
+        // ⚡ Bolt: Optimize sequential unique field generation by generating candidates in batches
+        // to avoid N+1 database round-trips when checking for existing codes
+        let inviteCode = null;
+        while (!inviteCode) {
+            const candidates = Array.from({ length: 5 }, () => generateInviteCode());
+            const existingUsers = await User.find({ inviteCode: { $in: candidates } })
+                                            .select('inviteCode')
+                                            .lean();
+            const takenCodes = new Set(existingUsers.map(u => u.inviteCode));
+
+            inviteCode = candidates.find(code => !takenCodes.has(code));
         }
 
         user = new User({
@@ -217,11 +223,16 @@ router.post('/google', authLimiter, async (req, res) => {
         }
 
         // Creating a new universe (no invite code)
-        let inviteCode = generateInviteCode();
-        let codeExists = await User.findOne({ inviteCode });
-        while (codeExists) {
-            inviteCode = generateInviteCode();
-            codeExists = await User.findOne({ inviteCode });
+        // ⚡ Bolt: Optimize sequential unique field generation by batching candidates
+        let inviteCode = null;
+        while (!inviteCode) {
+            const candidates = Array.from({ length: 5 }, () => generateInviteCode());
+            const existingUsers = await User.find({ inviteCode: { $in: candidates } })
+                                            .select('inviteCode')
+                                            .lean();
+            const takenCodes = new Set(existingUsers.map(u => u.inviteCode));
+
+            inviteCode = candidates.find(code => !takenCodes.has(code));
         }
 
         user = new User({
@@ -308,11 +319,16 @@ router.get('/invite-code', auth, async (req, res) => {
 
         // If code is expired or doesn't exist, generate a new one
         if (!user.inviteCode || (user.inviteCodeExpiry && user.inviteCodeExpiry < new Date())) {
-            let inviteCode = generateInviteCode();
-            let codeExists = await User.findOne({ inviteCode });
-            while (codeExists) {
-                inviteCode = generateInviteCode();
-                codeExists = await User.findOne({ inviteCode });
+            // ⚡ Bolt: Optimize sequential unique field generation by batching candidates
+            let inviteCode = null;
+            while (!inviteCode) {
+                const candidates = Array.from({ length: 5 }, () => generateInviteCode());
+                const existingUsers = await User.find({ inviteCode: { $in: candidates } })
+                                                .select('inviteCode')
+                                                .lean();
+                const takenCodes = new Set(existingUsers.map(u => u.inviteCode));
+
+                inviteCode = candidates.find(code => !takenCodes.has(code));
             }
             user.inviteCode = inviteCode;
             user.inviteCodeExpiry = new Date(Date.now() + 48 * 60 * 60 * 1000);
