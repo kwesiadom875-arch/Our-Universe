@@ -43,13 +43,15 @@ router.post('/add', auth, async (req, res) => {
 // @access  Private
 router.get('/watched', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        // ⚡ Bolt: Fetch minimal user fields to check partnerId
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
         }
 
-        const items = await MediaItem.find({ user: { $in: userIds } }).sort({ dateAdded: -1 });
+        // ⚡ Bolt: Use .lean() for read-only query to improve performance
+        const items = await MediaItem.find({ user: { $in: userIds } }).sort({ dateAdded: -1 }).lean();
         res.json(items);
     } catch (err) {
         console.error(err.message);
@@ -96,9 +98,10 @@ router.get('/popular', auth, async (req, res) => {
         // We technically only check Swipes for the Matcher flow, but maybe we should also exclude things manually marked as watched?
         // Let's exclude BOTH.
 
+        // ⚡ Bolt: Use .lean() for read-only queries to improve performance
         const [swipes, watched] = await Promise.all([
-            Swipe.find({ user: req.user.id }).select('tmdbId'),
-            MediaItem.find({ user: req.user.id, mediaType }).select('tmdbId')
+            Swipe.find({ user: req.user.id }).select('tmdbId').lean(),
+            MediaItem.find({ user: req.user.id, mediaType }).select('tmdbId').lean()
         ]);
 
         const seenIds = new Set([
@@ -144,7 +147,8 @@ router.get('/popular', auth, async (req, res) => {
 router.get('/recommendations', auth, async (req, res) => {
     try {
         // 1. Get user's watched list
-        const watchedItems = await MediaItem.find({ user: req.user.id });
+        // ⚡ Bolt: Use .lean() for read-only query to improve performance
+        const watchedItems = await MediaItem.find({ user: req.user.id }).lean();
 
         if (watchedItems.length === 0) {
             // Fallback to top rated if nothing watched

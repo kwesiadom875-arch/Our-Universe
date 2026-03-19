@@ -13,11 +13,13 @@ router.get('/popular', auth, async (req, res) => {
         const API_KEY = process.env.TMDB_API_KEY;
 
         // 1. Get IDs of movies the user (and partner) has already swiped on
-        const user = await User.findById(req.user.id);
+        // ⚡ Bolt: Fetch minimal user fields to check partnerId
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
         if (user.partnerId) userIds.push(user.partnerId);
 
-        const userSwipes = await Swipe.find({ user: { $in: userIds } }).select('tmdbId');
+        // ⚡ Bolt: Use .lean() for read-only query to improve performance
+        const userSwipes = await Swipe.find({ user: { $in: userIds } }).select('tmdbId').lean();
         const seenMovieIds = new Set(userSwipes.map(s => s.tmdbId));
 
         let candidateMovies = [];
@@ -122,27 +124,30 @@ router.post('/swipe', auth, async (req, res) => {
 router.get('/matches', auth, async (req, res) => {
     try {
         // 1. Get all my likes
-        const myLikes = await Swipe.find({ user: req.user.id, action: 'like' });
+        // ⚡ Bolt: Use .lean() for read-only query to improve performance
+        const myLikes = await Swipe.find({ user: req.user.id, action: 'like' }).lean();
         const myLikedIds = myLikes.map(s => s.tmdbId);
 
         if (myLikedIds.length === 0) return res.json([]);
 
         // 2. Find which of these movies have ALSO been liked by others (partner)
-        const user = await User.findById(req.user.id);
+        // ⚡ Bolt: Fetch minimal user fields to check partnerId
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         let matches = [];
 
+        // ⚡ Bolt: Use .lean() for read-only query to improve performance
         if (user.partnerId) {
             matches = await Swipe.find({
                 tmdbId: { $in: myLikedIds },
                 action: 'like',
                 user: user.partnerId
-            });
+            }).lean();
         } else {
             matches = await Swipe.find({
                 tmdbId: { $in: myLikedIds },
                 action: 'like',
                 user: { $ne: req.user.id }
-            });
+            }).lean();
         }
 
         // Deduplicate matches (if multiple people matched, though currently 1-1)

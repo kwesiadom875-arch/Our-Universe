@@ -8,14 +8,16 @@ const Timetable = require('../models/Timetable');
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
-        const user = await require('../models/User').findById(req.user.id);
+        // ⚡ Bolt: Fetch minimal user fields to check partnerId
+        const user = await require('../models/User').findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
         }
 
         // Sort by day and start time could be complex, for now just return all
-        const classes = await Timetable.find({ user: { $in: userIds } });
+        // ⚡ Bolt: Use .lean() for read-only query to improve performance
+        const classes = await Timetable.find({ user: { $in: userIds } }).lean();
         res.json(classes);
     } catch (err) {
         console.error(err.message);
