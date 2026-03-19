@@ -12,7 +12,8 @@ router.get('/', auth, async (req, res) => {
         const limit = parseInt(req.query.limit) || 20;
         const skip = (page - 1) * limit;
 
-        const user = await require('../models/User').findById(req.user.id);
+        // ⚡ Bolt: Fetch minimal user fields to check partnerId
+        const user = await require('../models/User').findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
         if (user.partnerId) {
             userIds.push(user.partnerId);
@@ -20,10 +21,12 @@ router.get('/', auth, async (req, res) => {
 
         const query = { user: { $in: userIds } };
 
+        // ⚡ Bolt: Use .lean() for read-only query to improve performance
         const memories = await Memory.find(query)
             .sort({ createdAt: -1 }) // Sorted by newest first usually makes sense for feeds, was 1 (oldest first) in original but user requested -1. I will use -1 as requested.
             .skip(skip)
-            .limit(limit);
+            .limit(limit)
+            .lean();
 
         const total = await Memory.countDocuments(query);
 
