@@ -196,6 +196,10 @@ body {
   cursor: pointer;
   border-radius: 50%;
   overflow: visible;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: block;
 }
 
 .profile-placeholder {

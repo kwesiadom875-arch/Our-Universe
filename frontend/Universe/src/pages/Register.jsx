@@ -326,7 +326,7 @@ const Register = () => {
                     </div>
 
                     {/* Profile Picture */}
-                    <div className="profile-picture-picker" onClick={handleProfileClick}>
+                    <button type="button" aria-label="Upload profile picture" className="profile-picture-picker" onClick={handleProfileClick}>
                         {profilePreview ? (
                             <img src={profilePreview} alt="Profile" className="profile-preview-img" />
                         ) : (
@@ -344,7 +344,7 @@ const Register = () => {
                             onChange={handleFileChange}
                             style={{ display: 'none' }}
                         />
-                    </div>
+                    </button>
                     <p className="profile-label">PROFILE IDENTITY</p>
 
                     {/* Error Display */}
