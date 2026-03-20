@@ -174,12 +174,18 @@ router.post('/google', authLimiter, async (req, res) => {
 
         // New user — register via Google
         // Generate a unique username from Google name
-        let username = name.replace(/\s+/g, '').toLowerCase();
-        let usernameExists = await User.findOne({ username });
+        // ⚡ Bolt: Replaced O(N) iterative findOne queries with a single anchored regex query to avoid DB round-trips
+        const baseUsername = name.replace(/\s+/g, '').toLowerCase();
+        const escapedBase = baseUsername.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const existingUsers = await User.find({ username: { $regex: new RegExp('^' + escapedBase + '[0-9]*$') } })
+            .select('username')
+            .lean();
+
+        const takenUsernames = new Set(existingUsers.map(u => u.username));
+        let username = baseUsername;
         let counter = 1;
-        while (usernameExists) {
-            username = `${name.replace(/\s+/g, '').toLowerCase()}${counter}`;
-            usernameExists = await User.findOne({ username });
+        while (takenUsernames.has(username)) {
+            username = `${baseUsername}${counter}`;
             counter++;
         }
 
