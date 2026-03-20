@@ -19,9 +19,17 @@ const NotificationCenter = () => {
             }
         };
 
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                setIsOpen(false);
+            }
+        };
+
         document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('keydown', handleKeyDown);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleKeyDown);
         };
     }, []);
 
@@ -66,10 +74,13 @@ const NotificationCenter = () => {
 
     return (
         <>
-            <div
+            <button
                 className="notification-bell-container"
                 onClick={togglePanel}
                 title="Notifications"
+                aria-label="Notifications"
+                aria-expanded={isOpen}
+                aria-haspopup="true"
             >
                 <Bell size={24} color="#555" />
                 {unreadCount > 0 && (
@@ -82,7 +93,7 @@ const NotificationCenter = () => {
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </motion.span>
                 )}
-            </div>
+            </button>
 
             <AnimatePresence>
                 {isOpen && (
@@ -134,6 +145,7 @@ const NotificationCenter = () => {
                                                     className="action-btn"
                                                     onClick={(e) => handleMarkAsRead(notif.id, e)}
                                                     title="Mark as read"
+                                                    aria-label="Mark as read"
                                                 >
                                                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ff3366' }}></div>
                                                 </button>
