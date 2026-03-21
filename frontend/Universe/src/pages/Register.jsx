@@ -60,6 +60,13 @@ const Register = () => {
         fileInputRef.current.click();
     };
 
+    const handleProfileKeyDown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleProfileClick();
+        }
+    };
+
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -314,19 +321,28 @@ const Register = () => {
                         <button
                             className={`flow-toggle-btn ${activeTab === 'create' ? 'active' : ''}`}
                             onClick={() => { setActiveTab('create'); setFormError(''); }}
+                            aria-pressed={activeTab === 'create'}
                         >
                             Create Universe
                         </button>
                         <button
                             className={`flow-toggle-btn ${activeTab === 'join' ? 'active' : ''}`}
                             onClick={() => { setActiveTab('join'); setFormError(''); }}
+                            aria-pressed={activeTab === 'join'}
                         >
                             Join Universe
                         </button>
                     </div>
 
                     {/* Profile Picture */}
-                    <div className="profile-picture-picker" onClick={handleProfileClick}>
+                    <div
+                        className="profile-picture-picker"
+                        onClick={handleProfileClick}
+                        onKeyDown={handleProfileKeyDown}
+                        role="button"
+                        tabIndex={0}
+                        aria-label="Upload profile picture"
+                    >
                         {profilePreview ? (
                             <img src={profilePreview} alt="Profile" className="profile-preview-img" />
                         ) : (
