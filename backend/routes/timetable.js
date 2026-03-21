@@ -8,9 +8,10 @@ const Timetable = require('../models/Timetable');
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
-        const user = await require('../models/User').findById(req.user.id);
+        // ⚡ Bolt: optimized User fetch to only return partnerId
+        const user = await require('../models/User').findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
-        if (user.partnerId) {
+        if (user && user.partnerId) {
             userIds.push(user.partnerId);
         }
 

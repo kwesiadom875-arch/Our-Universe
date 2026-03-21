@@ -43,9 +43,10 @@ router.post('/add', auth, async (req, res) => {
 // @access  Private
 router.get('/watched', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        // ⚡ Bolt: optimized User fetch to only return partnerId
+        const user = await User.findById(req.user.id).select('partnerId').lean();
         const userIds = [req.user.id];
-        if (user.partnerId) {
+        if (user && user.partnerId) {
             userIds.push(user.partnerId);
         }
 
