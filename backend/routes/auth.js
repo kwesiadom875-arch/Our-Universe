@@ -15,6 +15,48 @@ const generateInviteCode = () => {
     return crypto.randomBytes(4).toString('hex').toUpperCase();
 };
 
+// Bolt Optimization: Generate invite codes in batches to avoid N+1 queries during collision retries
+const generateUniqueInviteCode = async () => {
+    const BATCH_SIZE = 5;
+    while (true) {
+        const candidates = Array.from({ length: BATCH_SIZE }, generateInviteCode);
+        const existingUsers = await User.find({ inviteCode: { $in: candidates } })
+            .select('inviteCode')
+            .lean();
+
+        const existingCodes = new Set(existingUsers.map(u => u.inviteCode));
+        for (const code of candidates) {
+            if (!existingCodes.has(code)) {
+                return code;
+            }
+        }
+    }
+};
+
+// Bolt Optimization: Find next available username without N+1 queries
+const generateUniqueUsername = async (baseName) => {
+    const baseUsername = baseName.replace(/\s+/g, '').toLowerCase();
+    const escapedBase = baseUsername.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // Fetch all similar usernames in one query
+    const existingUsers = await User.find({ username: { $regex: new RegExp(`^${escapedBase}[0-9]*$`) } })
+        .select('username')
+        .lean();
+
+    const existingUsernames = new Set(existingUsers.map(u => u.username));
+
+    if (!existingUsernames.has(baseUsername)) {
+        return baseUsername;
+    }
+
+    let counter = 1;
+    while (existingUsernames.has(`${baseUsername}${counter}`)) {
+        counter++;
+    }
+
+    return `${baseUsername}${counter}`;
+};
+
 // Helper: create JWT token
 const createToken = (userId, username) => {
     return new Promise((resolve, reject) => {
@@ -45,12 +87,7 @@ router.post('/register', authLimiter, async (req, res) => {
         }
 
         // Generate unique invite code
-        let inviteCode = generateInviteCode();
-        let codeExists = await User.findOne({ inviteCode });
-        while (codeExists) {
-            inviteCode = generateInviteCode();
-            codeExists = await User.findOne({ inviteCode });
-        }
+        const inviteCode = await generateUniqueInviteCode();
 
         user = new User({
             username,
@@ -174,14 +211,7 @@ router.post('/google', authLimiter, async (req, res) => {
 
         // New user — register via Google
         // Generate a unique username from Google name
-        let username = name.replace(/\s+/g, '').toLowerCase();
-        let usernameExists = await User.findOne({ username });
-        let counter = 1;
-        while (usernameExists) {
-            username = `${name.replace(/\s+/g, '').toLowerCase()}${counter}`;
-            usernameExists = await User.findOne({ username });
-            counter++;
-        }
+        const username = await generateUniqueUsername(name);
 
         // If joining with an invite code
         if (joinCode) {
@@ -217,12 +247,7 @@ router.post('/google', authLimiter, async (req, res) => {
         }
 
         // Creating a new universe (no invite code)
-        let inviteCode = generateInviteCode();
-        let codeExists = await User.findOne({ inviteCode });
-        while (codeExists) {
-            inviteCode = generateInviteCode();
-            codeExists = await User.findOne({ inviteCode });
-        }
+        const inviteCode = await generateUniqueInviteCode();
 
         user = new User({
             username,
@@ -308,12 +333,7 @@ router.get('/invite-code', auth, async (req, res) => {
 
         // If code is expired or doesn't exist, generate a new one
         if (!user.inviteCode || (user.inviteCodeExpiry && user.inviteCodeExpiry < new Date())) {
-            let inviteCode = generateInviteCode();
-            let codeExists = await User.findOne({ inviteCode });
-            while (codeExists) {
-                inviteCode = generateInviteCode();
-                codeExists = await User.findOne({ inviteCode });
-            }
+            const inviteCode = await generateUniqueInviteCode();
             user.inviteCode = inviteCode;
             user.inviteCodeExpiry = new Date(Date.now() + 48 * 60 * 60 * 1000);
             await user.save();
