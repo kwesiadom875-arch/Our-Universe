@@ -33,23 +33,27 @@ router.post('/register', authLimiter, async (req, res) => {
     const { username, email, password, profilePicture } = req.body;
 
     try {
-        let user = await User.findOne({ email });
+        // ⚡ Bolt: Optimize read-only existence check by only fetching _id and bypassing document hydration
+        let user = await User.findOne({ email }).select('_id').lean();
         if (user) {
             return res.status(400).json({ msg: 'User already exists' });
         }
 
         // Check if username is taken
-        let existingUsername = await User.findOne({ username });
+        // ⚡ Bolt: Optimize read-only existence check by only fetching _id and bypassing document hydration
+        let existingUsername = await User.findOne({ username }).select('_id').lean();
         if (existingUsername) {
             return res.status(400).json({ msg: 'Username already taken' });
         }
 
         // Generate unique invite code
         let inviteCode = generateInviteCode();
-        let codeExists = await User.findOne({ inviteCode });
+        // ⚡ Bolt: Optimize read-only existence check by only fetching _id and bypassing document hydration
+        let codeExists = await User.findOne({ inviteCode }).select('_id').lean();
         while (codeExists) {
             inviteCode = generateInviteCode();
-            codeExists = await User.findOne({ inviteCode });
+            // ⚡ Bolt: Optimize read-only existence check by only fetching _id and bypassing document hydration
+            codeExists = await User.findOne({ inviteCode }).select('_id').lean();
         }
 
         user = new User({
@@ -96,12 +100,14 @@ router.post('/register-with-code', authLimiter, async (req, res) => {
         }
 
         // Check existing user
-        let user = await User.findOne({ email });
+        // ⚡ Bolt: Optimize read-only existence check by only fetching _id and bypassing document hydration
+        let user = await User.findOne({ email }).select('_id').lean();
         if (user) {
             return res.status(400).json({ msg: 'User already exists' });
         }
 
-        let existingUsername = await User.findOne({ username });
+        // ⚡ Bolt: Optimize read-only existence check by only fetching _id and bypassing document hydration
+        let existingUsername = await User.findOne({ username }).select('_id').lean();
         if (existingUsername) {
             return res.status(400).json({ msg: 'Username already taken' });
         }
@@ -175,11 +181,13 @@ router.post('/google', authLimiter, async (req, res) => {
         // New user — register via Google
         // Generate a unique username from Google name
         let username = name.replace(/\s+/g, '').toLowerCase();
-        let usernameExists = await User.findOne({ username });
+        // ⚡ Bolt: Optimize read-only existence check by only fetching _id and bypassing document hydration
+        let usernameExists = await User.findOne({ username }).select('_id').lean();
         let counter = 1;
         while (usernameExists) {
             username = `${name.replace(/\s+/g, '').toLowerCase()}${counter}`;
-            usernameExists = await User.findOne({ username });
+            // ⚡ Bolt: Optimize read-only existence check by only fetching _id and bypassing document hydration
+            usernameExists = await User.findOne({ username }).select('_id').lean();
             counter++;
         }
 
@@ -218,10 +226,12 @@ router.post('/google', authLimiter, async (req, res) => {
 
         // Creating a new universe (no invite code)
         let inviteCode = generateInviteCode();
-        let codeExists = await User.findOne({ inviteCode });
+        // ⚡ Bolt: Optimize read-only existence check by only fetching _id and bypassing document hydration
+        let codeExists = await User.findOne({ inviteCode }).select('_id').lean();
         while (codeExists) {
             inviteCode = generateInviteCode();
-            codeExists = await User.findOne({ inviteCode });
+            // ⚡ Bolt: Optimize read-only existence check by only fetching _id and bypassing document hydration
+            codeExists = await User.findOne({ inviteCode }).select('_id').lean();
         }
 
         user = new User({
@@ -309,10 +319,12 @@ router.get('/invite-code', auth, async (req, res) => {
         // If code is expired or doesn't exist, generate a new one
         if (!user.inviteCode || (user.inviteCodeExpiry && user.inviteCodeExpiry < new Date())) {
             let inviteCode = generateInviteCode();
-            let codeExists = await User.findOne({ inviteCode });
+            // ⚡ Bolt: Optimize read-only existence check by only fetching _id and bypassing document hydration
+            let codeExists = await User.findOne({ inviteCode }).select('_id').lean();
             while (codeExists) {
                 inviteCode = generateInviteCode();
-                codeExists = await User.findOne({ inviteCode });
+                // ⚡ Bolt: Optimize read-only existence check by only fetching _id and bypassing document hydration
+                codeExists = await User.findOne({ inviteCode }).select('_id').lean();
             }
             user.inviteCode = inviteCode;
             user.inviteCodeExpiry = new Date(Date.now() + 48 * 60 * 60 * 1000);
@@ -349,7 +361,8 @@ router.put('/update', auth, async (req, res) => {
 
         // Check if username is taken (if changing)
         if (username && username !== user.username) {
-            let existingUsername = await User.findOne({ username });
+            // ⚡ Bolt: Optimize read-only existence check by only fetching _id and bypassing document hydration
+            let existingUsername = await User.findOne({ username }).select('_id').lean();
             if (existingUsername) {
                 return res.status(400).json({ msg: 'Username already taken' });
             }
