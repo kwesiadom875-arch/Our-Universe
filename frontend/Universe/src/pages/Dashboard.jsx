@@ -131,7 +131,7 @@ const Dashboard = () => {
                                 <h3>Timetable</h3>
                                 <span>Today's shared schedule</span>
                             </div>
-                            <button className="widget-more-btn"><MoreHorizontal size={20} /></button>
+                            <button className="widget-more-btn" aria-label="More options"><MoreHorizontal size={20} /></button>
                         </div>
 
                         <div className="timetable-timeline">

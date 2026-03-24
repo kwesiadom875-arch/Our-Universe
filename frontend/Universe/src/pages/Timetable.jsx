@@ -176,11 +176,11 @@ const Timetable = () => {
 
                 {/* Date Navigator */}
                 <div className="tt-date-nav">
-                    <button className="tt-date-arrow" onClick={handlePrevDay}>
+                    <button className="tt-date-arrow" onClick={handlePrevDay} aria-label="Previous Day">
                         <ChevronLeft size={18} />
                     </button>
                     <span className="tt-date-text">{formatDateLong(currentDate)}</span>
-                    <button className="tt-date-arrow" onClick={handleNextDay}>
+                    <button className="tt-date-arrow" onClick={handleNextDay} aria-label="Next Day">
                         <ChevronRight size={18} />
                     </button>
                 </div>
