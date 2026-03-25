@@ -66,10 +66,12 @@ const NotificationCenter = () => {
 
     return (
         <>
-            <div
+            <button
                 className="notification-bell-container"
                 onClick={togglePanel}
-                title="Notifications"
+                aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}
+                aria-expanded={isOpen}
+                aria-haspopup="dialog"
             >
                 <Bell size={24} color="#555" />
                 {unreadCount > 0 && (
@@ -82,12 +84,14 @@ const NotificationCenter = () => {
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </motion.span>
                 )}
-            </div>
+            </button>
 
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
                         className="notification-panel"
+                        role="dialog"
+                        aria-label="Notifications Panel"
                         ref={panelRef}
                         initial={{ opacity: 0, y: -20, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}

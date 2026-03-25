@@ -5,14 +5,21 @@
     cursor: pointer;
     padding: 8px;
     border-radius: 50%;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, outline 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: transparent;
+    border: none;
 }
 
 .notification-bell-container:hover {
     background-color: rgba(0, 0, 0, 0.05);
+}
+
+.notification-bell-container:focus-visible {
+    outline: 2px solid #ff3366;
+    outline-offset: 2px;
 }
 
 .notification-badge {
