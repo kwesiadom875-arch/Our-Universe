@@ -33,23 +33,27 @@ router.post('/register', authLimiter, async (req, res) => {
     const { username, email, password, profilePicture } = req.body;
 
     try {
-        let user = await User.findOne({ email });
+        // ⚡ Bolt: Optimize read-only existence checks by skipping full document hydration
+        let user = await User.findOne({ email }).select('_id').lean();
         if (user) {
             return res.status(400).json({ msg: 'User already exists' });
         }
 
         // Check if username is taken
-        let existingUsername = await User.findOne({ username });
+        // ⚡ Bolt: Optimize read-only existence checks by skipping full document hydration
+        let existingUsername = await User.findOne({ username }).select('_id').lean();
         if (existingUsername) {
             return res.status(400).json({ msg: 'Username already taken' });
         }
 
         // Generate unique invite code
         let inviteCode = generateInviteCode();
-        let codeExists = await User.findOne({ inviteCode });
+        // ⚡ Bolt: Optimize read-only existence checks by skipping full document hydration
+        let codeExists = await User.findOne({ inviteCode }).select('_id').lean();
         while (codeExists) {
             inviteCode = generateInviteCode();
-            codeExists = await User.findOne({ inviteCode });
+            // ⚡ Bolt: Optimize read-only existence checks by skipping full document hydration
+            codeExists = await User.findOne({ inviteCode }).select('_id').lean();
         }
 
         user = new User({
@@ -81,7 +85,7 @@ router.post('/register-with-code', authLimiter, async (req, res) => {
     const { username, email, password, profilePicture, inviteCode } = req.body;
 
     try {
-        // Validate invite code
+        // Validate invite code (cannot use lean as we modify partner later)
         const partner = await User.findOne({ inviteCode });
         if (!partner) {
             return res.status(400).json({ msg: 'Invalid invite code' });
@@ -96,12 +100,14 @@ router.post('/register-with-code', authLimiter, async (req, res) => {
         }
 
         // Check existing user
-        let user = await User.findOne({ email });
+        // ⚡ Bolt: Optimize read-only existence checks by skipping full document hydration
+        let user = await User.findOne({ email }).select('_id').lean();
         if (user) {
             return res.status(400).json({ msg: 'User already exists' });
         }
 
-        let existingUsername = await User.findOne({ username });
+        // ⚡ Bolt: Optimize read-only existence checks by skipping full document hydration
+        let existingUsername = await User.findOne({ username }).select('_id').lean();
         if (existingUsername) {
             return res.status(400).json({ msg: 'Username already taken' });
         }
@@ -151,7 +157,7 @@ router.post('/google', authLimiter, async (req, res) => {
 
         const { sub: googleId, email, name, picture } = ticket.getPayload();
 
-        // Check if user already exists with this Google ID
+        // Check if user already exists with this Google ID (cannot use lean since user.id is accessed, not user._id and we might need full document methods/properties)
         let user = await User.findOne({ googleId });
 
         if (user) {
@@ -161,7 +167,7 @@ router.post('/google', authLimiter, async (req, res) => {
         }
 
         // Check if an account exists with this email (merge)
-        user = await User.findOne({ email });
+        user = await User.findOne({ email }); // Cannot use lean as it's modified and saved
         if (user) {
             user.googleId = googleId;
             if (!user.profilePicture && picture) {
@@ -175,16 +181,19 @@ router.post('/google', authLimiter, async (req, res) => {
         // New user — register via Google
         // Generate a unique username from Google name
         let username = name.replace(/\s+/g, '').toLowerCase();
-        let usernameExists = await User.findOne({ username });
+        // ⚡ Bolt: Optimize read-only existence checks by skipping full document hydration
+        let usernameExists = await User.findOne({ username }).select('_id').lean();
         let counter = 1;
         while (usernameExists) {
             username = `${name.replace(/\s+/g, '').toLowerCase()}${counter}`;
-            usernameExists = await User.findOne({ username });
+            // ⚡ Bolt: Optimize read-only existence checks by skipping full document hydration
+            usernameExists = await User.findOne({ username }).select('_id').lean();
             counter++;
         }
 
         // If joining with an invite code
         if (joinCode) {
+            // Cannot use lean as partner is modified and saved later
             const partner = await User.findOne({ inviteCode: joinCode });
             if (!partner) {
                 return res.status(400).json({ msg: 'Invalid invite code' });
@@ -218,10 +227,12 @@ router.post('/google', authLimiter, async (req, res) => {
 
         // Creating a new universe (no invite code)
         let inviteCode = generateInviteCode();
-        let codeExists = await User.findOne({ inviteCode });
+        // ⚡ Bolt: Optimize read-only existence checks by skipping full document hydration
+        let codeExists = await User.findOne({ inviteCode }).select('_id').lean();
         while (codeExists) {
             inviteCode = generateInviteCode();
-            codeExists = await User.findOne({ inviteCode });
+            // ⚡ Bolt: Optimize read-only existence checks by skipping full document hydration
+            codeExists = await User.findOne({ inviteCode }).select('_id').lean();
         }
 
         user = new User({
@@ -249,6 +260,7 @@ router.post('/login', authLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        // Can't lean here easily as user object needs access to user.password for bcrypt, user.id for token etc.
         let user = await User.findOne({ email });
 
         if (!user) {
@@ -309,10 +321,12 @@ router.get('/invite-code', auth, async (req, res) => {
         // If code is expired or doesn't exist, generate a new one
         if (!user.inviteCode || (user.inviteCodeExpiry && user.inviteCodeExpiry < new Date())) {
             let inviteCode = generateInviteCode();
-            let codeExists = await User.findOne({ inviteCode });
+            // ⚡ Bolt: Optimize read-only existence checks by skipping full document hydration
+            let codeExists = await User.findOne({ inviteCode }).select('_id').lean();
             while (codeExists) {
                 inviteCode = generateInviteCode();
-                codeExists = await User.findOne({ inviteCode });
+                // ⚡ Bolt: Optimize read-only existence checks by skipping full document hydration
+                codeExists = await User.findOne({ inviteCode }).select('_id').lean();
             }
             user.inviteCode = inviteCode;
             user.inviteCodeExpiry = new Date(Date.now() + 48 * 60 * 60 * 1000);
@@ -349,7 +363,8 @@ router.put('/update', auth, async (req, res) => {
 
         // Check if username is taken (if changing)
         if (username && username !== user.username) {
-            let existingUsername = await User.findOne({ username });
+            // ⚡ Bolt: Optimize read-only existence checks by skipping full document hydration
+            let existingUsername = await User.findOne({ username }).select('_id').lean();
             if (existingUsername) {
                 return res.status(400).json({ msg: 'Username already taken' });
             }
