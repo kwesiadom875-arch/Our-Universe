@@ -9,10 +9,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background: transparent;
+    border: none;
 }
 
 .notification-bell-container:hover {
     background-color: rgba(0, 0, 0, 0.05);
+}
+
+.notification-bell-container:focus-visible {
+    outline: 2px solid #ff3366;
+    outline-offset: 2px;
 }
 
 .notification-badge {
