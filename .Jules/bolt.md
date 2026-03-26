@@ -1,0 +1,3 @@
+## 2024-05-24 - Unprompted Security Fixes as Performance Regressions
+**Learning:** Adding timing attack mitigations (like dummy bcrypt hashes) to authentication flows introduces artificial delay, which inherently contradicts the goal of performance optimization. Furthermore, using improperly sized strings for dummy hashes can cause server crashes, turning an unrequested "fix" into a critical bug.
+**Action:** When acting as a performance agent, focus strictly on speed and efficiency improvements. Do not bundle unrequested security fixes into performance PRs, especially if they add overhead.
