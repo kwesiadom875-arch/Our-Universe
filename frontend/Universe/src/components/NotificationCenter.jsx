@@ -64,12 +64,25 @@ const NotificationCenter = () => {
         return "Just now";
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            togglePanel();
+        }
+    };
+
     return (
         <>
             <div
                 className="notification-bell-container"
                 onClick={togglePanel}
+                onKeyDown={handleKeyDown}
                 title="Notifications"
+                role="button"
+                tabIndex={0}
+                aria-label="Notifications"
+                aria-expanded={isOpen}
+                aria-haspopup="dialog"
             >
                 <Bell size={24} color="#555" />
                 {unreadCount > 0 && (
